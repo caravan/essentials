@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	caravan "github.com/caravan/essentials"
+	"github.com/caravan/essentials"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/caravan/essentials/topic/retention"
@@ -20,7 +20,7 @@ func TestCountedPolicy(t *testing.T) {
 
 func TestCounted(t *testing.T) {
 	as := assert.New(t)
-	top := caravan.NewTopic(config.Counted(100))
+	top := essentials.NewTopic(config.Counted(100))
 
 	p := top.NewProducer()
 	for i := 0; i < 256; i++ {

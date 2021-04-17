@@ -3,7 +3,7 @@ package config_test
 import (
 	"testing"
 
-	caravan "github.com/caravan/essentials"
+	"github.com/caravan/essentials"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/caravan/essentials/topic/retention"
 	"github.com/stretchr/testify/assert"
@@ -22,7 +22,7 @@ func TestRetentionConflict(t *testing.T) {
 		as.Errorf(rec.(error), config.ErrRetentionPolicyAlreadySet)
 	}()
 
-	caravan.NewTopic(config.Timed(5), config.Counted(10))
+	essentials.NewTopic(config.Timed(5), config.Counted(10))
 }
 
 func TestRetentionPolicyOption(t *testing.T) {
@@ -31,7 +31,7 @@ func TestRetentionPolicyOption(t *testing.T) {
 		as.Equal(errRetentionExplosion, recover())
 	}()
 
-	caravan.NewTopic(
+	essentials.NewTopic(
 		config.RetentionPolicy(explodingRetentionPolicy(false)),
 	)
 }

@@ -3,7 +3,7 @@ package retention_test
 import (
 	"testing"
 
-	caravan "github.com/caravan/essentials"
+	"github.com/caravan/essentials"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/caravan/essentials/topic/retention"
@@ -18,7 +18,7 @@ func TestConsumedPolicy(t *testing.T) {
 
 func TestMakeConsumedSome(t *testing.T) {
 	as := assert.New(t)
-	top := caravan.NewTopic(config.Consumed)
+	top := essentials.NewTopic(config.Consumed)
 
 	segmentSize := config.DefaultSegmentIncrement
 	p := top.NewProducer()

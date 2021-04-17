@@ -4,7 +4,7 @@ import (
 	"runtime"
 	"testing"
 
-	caravan "github.com/caravan/essentials"
+	"github.com/caravan/essentials"
 	"github.com/caravan/essentials/internal/debug"
 	"github.com/caravan/essentials/topic"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +17,7 @@ func TestDebugProducerClose(t *testing.T) {
 	debug.Enable()
 
 	debug.WithConsumer(func(c topic.Consumer) {
-		top := caravan.NewTopic()
+		top := essentials.NewTopic()
 		i := top.NewProducer().ID()
 		runtime.GC()
 
@@ -31,7 +31,7 @@ func TestDebugConsumerClose(t *testing.T) {
 	debug.Enable()
 
 	debug.WithConsumer(func(c topic.Consumer) {
-		top := caravan.NewTopic()
+		top := essentials.NewTopic()
 		i := top.NewConsumer().ID()
 		runtime.GC()
 

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	caravan "github.com/caravan/essentials"
+	"github.com/caravan/essentials"
 	"github.com/caravan/essentials/topic/backoff"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/stretchr/testify/assert"
@@ -21,7 +21,7 @@ func TestBackoffConflict(t *testing.T) {
 		as.Errorf(rec.(error), config.ErrBackoffAlreadySet)
 	}()
 
-	caravan.NewTopic(
+	essentials.NewTopic(
 		config.FixedBackoffSequence(10),
 		config.FibonacciBackoffSequence(time.Microsecond, 100),
 	)
@@ -33,7 +33,7 @@ func TestBackoffGeneratorOption(t *testing.T) {
 		as.Equal(errBackoffExplosion, recover())
 	}()
 
-	caravan.NewTopic(
+	essentials.NewTopic(
 		config.BackoffGenerator(func() backoff.Next {
 			panic(errBackoffExplosion)
 		}),

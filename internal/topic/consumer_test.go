@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	caravan "github.com/caravan/essentials"
+	"github.com/caravan/essentials"
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/debug"
 	"github.com/caravan/essentials/topic"
@@ -16,7 +16,7 @@ import (
 func TestConsumerClosed(t *testing.T) {
 	as := assert.New(t)
 
-	top := caravan.NewTopic()
+	top := essentials.NewTopic()
 	c := top.NewConsumer()
 	as.Nil(c.Close())
 
@@ -27,7 +27,7 @@ func TestConsumerGC(t *testing.T) {
 	debug.Enable()
 
 	as := assert.New(t)
-	top := caravan.NewTopic()
+	top := essentials.NewTopic()
 	top.NewConsumer()
 	runtime.GC()
 
@@ -43,7 +43,7 @@ func TestConsumerGC(t *testing.T) {
 
 func TestEmptyConsumer(t *testing.T) {
 	as := assert.New(t)
-	top := caravan.NewTopic(config.Permanent)
+	top := essentials.NewTopic(config.Permanent)
 	c := top.NewConsumer()
 	e, ok := c.Poll(0)
 	as.Nil(e)
@@ -54,7 +54,7 @@ func TestEmptyConsumer(t *testing.T) {
 func TestSingleConsumer(t *testing.T) {
 	as := assert.New(t)
 
-	top := caravan.NewTopic(config.Permanent)
+	top := essentials.NewTopic(config.Permanent)
 	as.NotNil(top)
 
 	p := top.NewProducer()
@@ -79,7 +79,7 @@ func TestSingleConsumer(t *testing.T) {
 func TestMultiConsumer(t *testing.T) {
 	as := assert.New(t)
 
-	top := caravan.NewTopic(config.Permanent)
+	top := essentials.NewTopic(config.Permanent)
 	as.NotNil(top)
 
 	p := top.NewProducer()
@@ -107,7 +107,7 @@ func TestMultiConsumer(t *testing.T) {
 func TestLoadedConsumer(t *testing.T) {
 	as := assert.New(t)
 
-	top := caravan.NewTopic(config.Permanent)
+	top := essentials.NewTopic(config.Permanent)
 	p := top.NewProducer()
 	for i := 0; i < 10000; i++ {
 		p.Send(i)
@@ -131,7 +131,7 @@ func TestLoadedConsumer(t *testing.T) {
 func TestStreamingConsumer(t *testing.T) {
 	as := assert.New(t)
 
-	top := caravan.NewTopic(config.Consumed)
+	top := essentials.NewTopic(config.Consumed)
 	p := top.NewProducer()
 	c := top.NewConsumer()
 
@@ -158,7 +158,7 @@ func TestStreamingConsumer(t *testing.T) {
 func TestConsumerClosedDuringPoll(t *testing.T) {
 	as := assert.New(t)
 
-	top := caravan.NewTopic()
+	top := essentials.NewTopic()
 	p := top.NewProducer()
 	c := top.NewConsumer()
 
@@ -176,7 +176,7 @@ func TestConsumerClosedDuringPoll(t *testing.T) {
 func TestConsumerChannel(t *testing.T) {
 	as := assert.New(t)
 
-	top := caravan.NewTopic(config.Permanent)
+	top := essentials.NewTopic(config.Permanent)
 	as.NotNil(top)
 
 	p := top.NewProducer()
@@ -202,7 +202,7 @@ func TestConsumerChannel(t *testing.T) {
 func TestConsumerChannelClosed(t *testing.T) {
 	as := assert.New(t)
 
-	top := caravan.NewTopic()
+	top := essentials.NewTopic()
 	c := top.NewConsumer()
 	c.Channel()
 	as.Nil(c.Close())

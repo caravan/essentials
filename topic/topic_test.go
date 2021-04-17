@@ -3,14 +3,14 @@ package topic_test
 import (
 	"testing"
 
-	caravan "github.com/caravan/essentials"
+	"github.com/caravan/essentials"
 	"github.com/caravan/essentials/topic"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMustReceive(t *testing.T) {
 	as := assert.New(t)
-	top := caravan.NewTopic()
+	top := essentials.NewTopic()
 	p := top.NewProducer()
 	p.Send("hello")
 
@@ -26,7 +26,7 @@ func TestMustReceive(t *testing.T) {
 
 func TestMustSend(t *testing.T) {
 	as := assert.New(t)
-	top := caravan.NewTopic()
+	top := essentials.NewTopic()
 	p := top.NewProducer()
 	_ = p.Close()
 

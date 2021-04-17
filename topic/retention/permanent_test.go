@@ -3,7 +3,7 @@ package retention_test
 import (
 	"testing"
 
-	caravan "github.com/caravan/essentials"
+	"github.com/caravan/essentials"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/caravan/essentials/topic/retention"
@@ -19,7 +19,7 @@ func TestPermanentPolicy(t *testing.T) {
 func TestPermanent(t *testing.T) {
 	as := assert.New(t)
 
-	top := caravan.NewTopic(config.Permanent)
+	top := essentials.NewTopic(config.Permanent)
 	p := top.NewProducer()
 
 	for i := 0; i < 500; i++ {

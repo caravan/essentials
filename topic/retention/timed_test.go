@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	caravan "github.com/caravan/essentials"
+	"github.com/caravan/essentials"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/caravan/essentials/topic/retention"
@@ -20,7 +20,7 @@ func TestTimedPolicy(t *testing.T) {
 
 func TestTimed(t *testing.T) {
 	as := assert.New(t)
-	top := caravan.NewTopic(config.Timed(50 * time.Millisecond))
+	top := essentials.NewTopic(config.Timed(50 * time.Millisecond))
 	segmentSize := config.DefaultSegmentIncrement
 	p := top.NewProducer()
 	c := top.NewConsumer()

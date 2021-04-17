@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	caravan "github.com/caravan/essentials"
+	"github.com/caravan/essentials"
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/debug"
 	"github.com/caravan/essentials/topic"
@@ -16,7 +16,7 @@ import (
 func TestProducerClosed(t *testing.T) {
 	as := assert.New(t)
 
-	top := caravan.NewTopic()
+	top := essentials.NewTopic()
 	p := top.NewProducer()
 	as.Nil(p.Close())
 	as.Errorf(p.Close(), topic.ErrProducerClosed)
@@ -28,7 +28,7 @@ func TestProducerGC(t *testing.T) {
 	debug.Enable()
 
 	as := assert.New(t)
-	top := caravan.NewTopic()
+	top := essentials.NewTopic()
 	top.NewProducer()
 	runtime.GC()
 
@@ -44,7 +44,7 @@ func TestProducerGC(t *testing.T) {
 func TestProducer(t *testing.T) {
 	as := assert.New(t)
 
-	top := caravan.NewTopic(config.Permanent)
+	top := essentials.NewTopic(config.Permanent)
 	as.NotNil(top)
 
 	p := top.NewProducer()
@@ -66,7 +66,7 @@ func TestProducer(t *testing.T) {
 func TestLateProducer(t *testing.T) {
 	as := assert.New(t)
 
-	top := caravan.NewTopic(config.Permanent)
+	top := essentials.NewTopic(config.Permanent)
 	p := top.NewProducer()
 
 	pc := p.Channel()
@@ -93,7 +93,7 @@ func TestLateProducer(t *testing.T) {
 func TestProducerChannel(t *testing.T) {
 	as := assert.New(t)
 
-	top := caravan.NewTopic(config.Permanent)
+	top := essentials.NewTopic(config.Permanent)
 	as.NotNil(top)
 
 	p := top.NewProducer()
@@ -121,7 +121,7 @@ func TestProducerChannel(t *testing.T) {
 func TestProducerChannelClosed(t *testing.T) {
 	as := assert.New(t)
 
-	top := caravan.NewTopic()
+	top := essentials.NewTopic()
 	p := top.NewProducer()
 	as.Nil(p.Close())
 	as.Errorf(p.Close(), topic.ErrProducerClosed)
