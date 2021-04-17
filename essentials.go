@@ -1,4 +1,4 @@
-package caravan
+package essentials
 
 import (
 	"github.com/caravan/essentials/topic"
