@@ -2,6 +2,7 @@ package retention_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/caravan/essentials"
 	"github.com/caravan/essentials/topic"
@@ -33,6 +34,7 @@ func TestMakeConsumedSome(t *testing.T) {
 		as.Equal(i, topic.MustReceive(c1))
 	}
 
+	time.Sleep(50 * time.Millisecond)
 	c2 := top.NewConsumer()
 	as.Equal(segmentSize, topic.MustReceive(c2))
 
