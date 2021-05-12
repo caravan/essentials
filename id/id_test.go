@@ -12,6 +12,11 @@ func TestID(t *testing.T) {
 
 	i1 := id.New()
 	i2 := id.Nil
+
+	as.Equal(i1, i1)
+	as.True(i1.Equal(i1))
+	as.Equal(i1.Bytes(), i1.Bytes())
+
 	as.NotEqual(i1, i2)
 	as.False(i1.Equal(i2))
 	as.NotEqual(i1.Bytes(), i2.Bytes())
