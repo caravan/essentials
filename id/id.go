@@ -16,3 +16,14 @@ func New() ID {
 func (id ID) String() string {
 	return uuid.UUID(id).String()
 }
+
+// Bytes allows ID to be used as a Key
+func (id ID) Bytes() []byte {
+	return id[:]
+}
+
+// Equal allows ID to be compared for equality
+func (id ID) Equal(other interface{}) bool {
+	oid, ok := other.(ID)
+	return ok && id == oid
+}

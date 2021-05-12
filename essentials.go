@@ -1,10 +1,10 @@
 package essentials
 
 import (
+	"github.com/caravan/essentials/internal/debug"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/config"
 
-	"github.com/caravan/essentials/internal/debug"
 	_topic "github.com/caravan/essentials/internal/topic"
 )
 
