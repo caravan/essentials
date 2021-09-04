@@ -19,8 +19,8 @@ func MakeReadyWait() *ReadyWait {
 	}
 }
 
-// Notify wakes up any process waiting on the Wait channel without blocking
-// the calling routine
+// Notify wakes up any process waiting on the ready channel without
+// blocking the calling routine
 func (r *ReadyWait) Notify() {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
@@ -35,7 +35,7 @@ func (r *ReadyWait) Wait() <-chan struct{} {
 	return r.ready
 }
 
-// Close closes the underlying Wait channel
+// Close closes the underlying ready channel
 func (r *ReadyWait) Close() {
 	close(r.ready)
 }
