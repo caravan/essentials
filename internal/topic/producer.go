@@ -20,7 +20,7 @@ type producer struct {
 
 // Error messages
 const (
-	ErrProducerNotClosed = "producer finalized without being channel: %s"
+	ErrProducerNotClosed = "producer finalized without being closed: %s"
 )
 
 func makeProducer(t *Topic) *producer {

@@ -31,7 +31,8 @@ func Send(s ClosingSender, e event.Event) (sent bool) {
 	select {
 	case <-s.IsClosed():
 		return false
-	case s.Send() <- e:
+	default:
+		s.Send() <- e
 		return true
 	}
 }

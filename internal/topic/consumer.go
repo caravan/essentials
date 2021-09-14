@@ -21,7 +21,7 @@ type consumer struct {
 
 // Error messages
 const (
-	ErrConsumerNotClosed = "consumer finalized without being channel: %s"
+	ErrConsumerNotClosed = "consumer finalized without being closed: %s"
 )
 
 func makeConsumer(c *cursor, b backoff.Generator) *consumer {

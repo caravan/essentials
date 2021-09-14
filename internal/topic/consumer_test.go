@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/caravan/essentials/closer"
+
 	"github.com/caravan/essentials"
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/debug"
@@ -22,8 +24,7 @@ func TestConsumerClosed(t *testing.T) {
 	c := top.NewConsumer()
 	c.Close()
 
-	_, ok := <-c.IsClosed()
-	as.False(ok)
+	as.True(closer.IsClosed(c))
 }
 
 func TestConsumerGC(t *testing.T) {

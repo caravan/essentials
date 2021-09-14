@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/caravan/essentials/closer"
+
 	"github.com/caravan/essentials"
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/debug"
@@ -22,9 +24,7 @@ func TestProducerClosed(t *testing.T) {
 	p := top.NewProducer()
 	p.Close()
 
-	_, ok := <-p.IsClosed()
-	as.False(ok)
-
+	as.True(closer.IsClosed(p))
 	as.False(sender.Send(p, "blah"))
 }
 
