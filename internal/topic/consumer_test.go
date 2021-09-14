@@ -5,9 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/caravan/essentials/closer"
-
 	"github.com/caravan/essentials"
+	"github.com/caravan/essentials/closer"
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/debug"
 	"github.com/caravan/essentials/receiver"
@@ -22,9 +21,12 @@ func TestConsumerClosed(t *testing.T) {
 
 	top := essentials.NewTopic()
 	c := top.NewConsumer()
-	c.Close()
 
+	c.Close()
 	as.True(closer.IsClosed(c))
+
+	c.Close()
+	as.True(closer.IsClosed(c)) // still closed
 }
 
 func TestConsumerGC(t *testing.T) {
