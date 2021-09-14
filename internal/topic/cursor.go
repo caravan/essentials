@@ -4,9 +4,9 @@ import (
 	"sync"
 
 	"github.com/caravan/essentials/closer"
-	"github.com/caravan/essentials/event"
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/sync/channel"
+	"github.com/caravan/essentials/message"
 	"github.com/caravan/essentials/topic/retention"
 )
 
@@ -46,7 +46,7 @@ func makeCursor(t *Topic) *cursor {
 	}
 }
 
-func (c *cursor) head() (event.Event, bool) {
+func (c *cursor) head() (message.Event, bool) {
 	if e, o, ok := c.topic.Get(c.offset); ok {
 		c.offset = o
 		return e, true

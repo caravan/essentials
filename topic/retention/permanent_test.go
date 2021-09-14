@@ -4,8 +4,7 @@ import (
 	"testing"
 
 	"github.com/caravan/essentials"
-	"github.com/caravan/essentials/receiver"
-	"github.com/caravan/essentials/sender"
+	"github.com/caravan/essentials/message"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/caravan/essentials/topic/retention"
 	"github.com/stretchr/testify/assert"
@@ -24,14 +23,14 @@ func TestPermanent(t *testing.T) {
 	p := top.NewProducer()
 
 	for i := 0; i < 500; i++ {
-		sender.Send(p, i)
+		message.Send(p, i)
 	}
 
 	done := make(chan bool)
 	go func() {
 		c := top.NewConsumer()
 		for i := 0; i < 500; i++ {
-			as.Equal(i, receiver.MustReceive(c))
+			as.Equal(i, message.MustReceive(c))
 		}
 		c.Close()
 		done <- true

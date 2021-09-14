@@ -3,8 +3,7 @@ package topic
 import (
 	"github.com/caravan/essentials/closer"
 	"github.com/caravan/essentials/id"
-	"github.com/caravan/essentials/receiver"
-	"github.com/caravan/essentials/sender"
+	"github.com/caravan/essentials/message"
 )
 
 type (
@@ -35,7 +34,7 @@ type (
 	// received by all Consumers
 	Producer interface {
 		Identified
-		sender.Sender
+		message.Sender
 		closer.Closer
 	}
 
@@ -44,7 +43,7 @@ type (
 	// the Topic
 	Consumer interface {
 		Identified
-		receiver.Receiver
+		message.Receiver
 		closer.Closer
 	}
 )

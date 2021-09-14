@@ -9,8 +9,7 @@ import (
 	"github.com/caravan/essentials/closer"
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/debug"
-	"github.com/caravan/essentials/receiver"
-	"github.com/caravan/essentials/sender"
+	"github.com/caravan/essentials/message"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +23,7 @@ func TestProducerClosed(t *testing.T) {
 
 	p.Close()
 	as.True(closer.IsClosed(p))
-	as.False(sender.Send(p, "blah"))
+	as.False(message.Send(p, "blah"))
 
 	p.Close()
 	as.True(closer.IsClosed(p)) // still closed
@@ -41,7 +40,7 @@ func TestProducerGC(t *testing.T) {
 	errs := make(chan error)
 	go func() {
 		debug.WithConsumer(func(c topic.Consumer) {
-			errs <- receiver.MustReceive(c).(error)
+			errs <- message.MustReceive(c).(error)
 		})
 	}()
 	as.Error(<-errs)
@@ -59,9 +58,9 @@ func TestProducer(t *testing.T) {
 	as.NotNil(p)
 	as.NotEqual(id.Nil, p.ID())
 
-	sender.Send(p, "first value")
-	sender.Send(p, "second value")
-	sender.Send(p, "third value")
+	message.Send(p, "first value")
+	message.Send(p, "second value")
+	message.Send(p, "third value")
 
 	time.Sleep(10 * time.Millisecond)
 	as.Equal(topic.Length(3), top.Length())

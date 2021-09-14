@@ -6,7 +6,7 @@ var (
 	// Enable enables debugging information to be emitted
 	Enable = debug.Enable
 
-	// IsEnabled returns whether or not debugging information is enabled
+	// IsEnabled returns whether debugging information is enabled
 	IsEnabled = debug.IsEnabled
 
 	// WithConsumer provides a debugging Consumer to the provided callback

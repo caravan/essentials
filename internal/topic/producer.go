@@ -5,9 +5,9 @@ import (
 	"runtime"
 
 	"github.com/caravan/essentials/closer"
-	"github.com/caravan/essentials/event"
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/debug"
+	"github.com/caravan/essentials/message"
 	"github.com/caravan/essentials/topic"
 )
 
@@ -15,7 +15,7 @@ type producer struct {
 	closer.Closer
 	id      id.ID
 	topic   *Topic
-	channel chan event.Event
+	channel chan message.Event
 }
 
 // Error messages
@@ -45,12 +45,12 @@ func (p *producer) ID() id.ID {
 	return p.id
 }
 
-func (p *producer) Send() chan<- event.Event {
+func (p *producer) Send() chan<- message.Event {
 	return p.channel
 }
 
-func startProducer(t *Topic) chan event.Event {
-	ch := make(chan event.Event)
+func startProducer(t *Topic) chan message.Event {
+	ch := make(chan message.Event)
 	go func() {
 		defer func() {
 			// probably because the channel was closed

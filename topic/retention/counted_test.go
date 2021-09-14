@@ -5,8 +5,7 @@ import (
 	"time"
 
 	"github.com/caravan/essentials"
-	"github.com/caravan/essentials/receiver"
-	"github.com/caravan/essentials/sender"
+	"github.com/caravan/essentials/message"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/caravan/essentials/topic/retention"
@@ -26,12 +25,12 @@ func TestCounted(t *testing.T) {
 
 	p := top.NewProducer()
 	for i := 0; i < 256; i++ {
-		sender.Send(p, i)
+		message.Send(p, i)
 	}
 
 	time.Sleep(100 * time.Millisecond)
 	c := top.NewConsumer()
-	as.Equal(128, receiver.MustReceive(c))
+	as.Equal(128, message.MustReceive(c))
 
 	p.Close()
 	c.Close()

@@ -5,8 +5,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/caravan/essentials/event"
 	"github.com/caravan/essentials/internal/sync/mutex"
+	"github.com/caravan/essentials/message"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/caravan/essentials/topic/retention"
@@ -23,7 +23,7 @@ type (
 	}
 
 	logEntry struct {
-		event     event.Event
+		event     message.Event
 		createdAt time.Time
 	}
 
@@ -48,7 +48,7 @@ type (
 		entries []*logEntry
 	}
 
-	// retentionQuery is called by Log in order to determined if a segment
+	// retentionQuery is called by Log in order to determine if a segment
 	// should be retained or discarded. Such a function is provided by a
 	// Topic in order to apply a retention.Policy
 	retentionQuery func(*segment) bool
@@ -76,7 +76,7 @@ func (l *Log) nextCapacity() uint32 {
 	return l.capIncrement
 }
 
-func (l *Log) put(ev event.Event) {
+func (l *Log) put(ev message.Event) {
 	entry := &logEntry{
 		event:     ev,
 		createdAt: time.Now(),

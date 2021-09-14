@@ -4,9 +4,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/caravan/essentials/event"
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/sync/channel"
+	"github.com/caravan/essentials/message"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/backoff"
 	"github.com/caravan/essentials/topic/config"
@@ -69,14 +69,16 @@ func (t *Topic) NewConsumer() topic.Consumer {
 // Get consumes an event starting at the specified virtual Offset within
 // the Topic. If the Offset is no longer being retained, the next
 // available Offset will be consumed. The actual Offset read is returned
-func (t *Topic) Get(o retention.Offset) (event.Event, retention.Offset, bool) {
+func (t *Topic) Get(
+	o retention.Offset,
+) (message.Event, retention.Offset, bool) {
 	defer t.vacuumReady.Notify()
 	e, o, ok := t.log.get(o)
 	return e.event, o, ok
 }
 
 // Put adds the specified event to the Topic
-func (t *Topic) Put(e event.Event) {
+func (t *Topic) Put(e message.Event) {
 	t.log.put(e)
 	t.notifyObservers()
 }

@@ -5,10 +5,10 @@ import (
 	"runtime"
 
 	"github.com/caravan/essentials/closer"
-	"github.com/caravan/essentials/event"
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/debug"
 	"github.com/caravan/essentials/internal/sync/channel"
+	"github.com/caravan/essentials/message"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/backoff"
 )
@@ -16,7 +16,7 @@ import (
 type consumer struct {
 	*cursor
 	id      id.ID
-	channel chan event.Event
+	channel chan message.Event
 }
 
 // Error messages
@@ -42,12 +42,12 @@ func (c *consumer) ID() id.ID {
 	return c.id
 }
 
-func (c *consumer) Receive() <-chan event.Event {
+func (c *consumer) Receive() <-chan message.Event {
 	return c.channel
 }
 
-func startConsumer(c *cursor, b backoff.Generator) chan event.Event {
-	ch := make(chan event.Event)
+func startConsumer(c *cursor, b backoff.Generator) chan message.Event {
+	ch := make(chan message.Event)
 	next := b()
 	go func() {
 		defer func() {

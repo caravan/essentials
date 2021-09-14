@@ -1,10 +1,10 @@
-package sender_test
+package message_test
 
 import (
 	"testing"
 
 	"github.com/caravan/essentials"
-	"github.com/caravan/essentials/sender"
+	"github.com/caravan/essentials/message"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,11 +12,11 @@ func TestMustSend(t *testing.T) {
 	as := assert.New(t)
 	top := essentials.NewTopic()
 	p := top.NewProducer()
-	sender.MustSend(p, "hello")
+	message.MustSend(p, "hello")
 	p.Close()
 
 	defer func() {
-		as.Errorf(recover().(error), sender.ErrClosed)
+		as.Errorf(recover().(error), message.ErrSenderClosed)
 	}()
-	sender.MustSend(p, "explode")
+	message.MustSend(p, "explode")
 }

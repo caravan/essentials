@@ -1,16 +1,15 @@
-package sender
+package message
 
 import (
 	"errors"
 
 	"github.com/caravan/essentials/closer"
-	"github.com/caravan/essentials/event"
 )
 
 type (
 	// Sender is a type that is capable of sending a Message via a channel
 	Sender interface {
-		Send() chan<- event.Event
+		Send() chan<- Message
 	}
 
 	// ClosingSender is a Sender that is capable of being closed
@@ -22,24 +21,24 @@ type (
 
 // Error messages
 const (
-	// ErrClosed is raised when MustSend is called on a closed Sender
-	ErrClosed = "sender is closed"
+	// ErrSenderClosed is raised when MustSend is called on a closed Sender
+	ErrSenderClosed = "sender is closed"
 )
 
 // Send sends an Event to a ClosingSender
-func Send(s ClosingSender, e event.Event) (sent bool) {
+func Send(s ClosingSender, m Message) (sent bool) {
 	select {
 	case <-s.IsClosed():
 		return false
 	default:
-		s.Send() <- e
+		s.Send() <- m
 		return true
 	}
 }
 
 // MustSend will send to a ClosingSender or panic if it is closed
-func MustSend(s ClosingSender, e event.Event) {
-	if !Send(s, e) {
-		panic(errors.New(ErrClosed))
+func MustSend(s ClosingSender, m Message) {
+	if !Send(s, m) {
+		panic(errors.New(ErrSenderClosed))
 	}
 }
