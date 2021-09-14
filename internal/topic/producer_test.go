@@ -8,6 +8,8 @@ import (
 	"github.com/caravan/essentials"
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/debug"
+	"github.com/caravan/essentials/receiver"
+	"github.com/caravan/essentials/sender"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/stretchr/testify/assert"
@@ -18,10 +20,12 @@ func TestProducerClosed(t *testing.T) {
 
 	top := essentials.NewTopic()
 	p := top.NewProducer()
-	as.Nil(p.Close())
-	as.Errorf(p.Close(), topic.ErrProducerClosed)
+	p.Close()
 
-	as.False(p.Send("blah"))
+	_, ok := <-p.IsClosed()
+	as.False(ok)
+
+	as.False(sender.Send(p, "blah"))
 }
 
 func TestProducerGC(t *testing.T) {
@@ -35,7 +39,7 @@ func TestProducerGC(t *testing.T) {
 	errs := make(chan error)
 	go func() {
 		debug.WithConsumer(func(c topic.Consumer) {
-			errs <- topic.MustReceive(c).(error)
+			errs <- receiver.MustReceive(c).(error)
 		})
 	}()
 	as.Error(<-errs)
@@ -53,14 +57,14 @@ func TestProducer(t *testing.T) {
 	as.NotNil(p)
 	as.NotEqual(id.Nil, p.ID())
 
-	p.Send("first value")
-	p.Send("second value")
-	p.Send("third value")
+	sender.Send(p, "first value")
+	sender.Send(p, "second value")
+	sender.Send(p, "third value")
 
 	time.Sleep(10 * time.Millisecond)
 	as.Equal(topic.Length(3), top.Length())
-	as.Nil(p.Close())
-	as.Nil(c.Close())
+	p.Close()
+	c.Close()
 }
 
 func TestLateProducer(t *testing.T) {
@@ -69,25 +73,25 @@ func TestLateProducer(t *testing.T) {
 	top := essentials.NewTopic(config.Permanent)
 	p := top.NewProducer()
 
-	pc := p.Channel()
+	pc := p.Send()
 	pc <- "first value"
 
 	c := top.NewConsumer()
-	cc := c.Channel()
+	cc := c.Receive()
 	as.Equal("first value", <-cc)
 
 	done := make(chan bool)
 
 	go func() {
 		as.Equal("second value", <-cc)
-		as.Nil(c.Close())
+		c.Close()
 		done <- true
 	}()
 
 	pc <- "second value"
 
 	<-done
-	as.Nil(p.Close())
+	p.Close()
 }
 
 func TestProducerChannel(t *testing.T) {
@@ -100,7 +104,7 @@ func TestProducerChannel(t *testing.T) {
 	as.NotNil(p)
 	as.NotEqual(id.Nil, p.ID())
 
-	pc := p.Channel()
+	pc := p.Send()
 	pc <- "first value"
 	pc <- "second value"
 	pc <- "third value"
@@ -110,12 +114,12 @@ func TestProducerChannel(t *testing.T) {
 		c := top.NewConsumer()
 		time.Sleep(10 * time.Millisecond)
 		as.Equal(topic.Length(3), top.Length())
-		as.Nil(c.Close())
+		c.Close()
 		done <- true
 	}()
 
 	<-done
-	as.Nil(p.Close())
+	p.Close()
 }
 
 func TestProducerChannelClosed(t *testing.T) {
@@ -123,6 +127,12 @@ func TestProducerChannelClosed(t *testing.T) {
 
 	top := essentials.NewTopic()
 	p := top.NewProducer()
-	as.Nil(p.Close())
-	as.Errorf(p.Close(), topic.ErrProducerClosed)
+	ch := p.Send()
+	p.Close()
+
+	defer func() {
+		as.NotNil(recover())
+	}()
+
+	ch <- "hello"
 }

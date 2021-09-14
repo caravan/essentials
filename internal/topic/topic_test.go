@@ -6,6 +6,7 @@ import (
 
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/config"
+	"github.com/caravan/essentials/topic/retention"
 	"github.com/stretchr/testify/assert"
 
 	_topic "github.com/caravan/essentials/internal/topic"
@@ -29,10 +30,10 @@ func TestLongLog(t *testing.T) {
 	as.Equal(topic.Length(10000), l.Length())
 
 	for i := 0; i < 10000; i++ {
-		e, o, ok := l.Get(topic.Offset(i))
+		e, o, ok := l.Get(retention.Offset(i))
 		as.True(ok)
 		as.Equal(i, e)
-		as.Equal(topic.Offset(i), o)
+		as.Equal(retention.Offset(i), o)
 	}
 }
 
@@ -44,7 +45,7 @@ func TestUnknownOffset(t *testing.T) {
 		l.Put(i)
 	}
 
-	e, _, ok := l.Get(topic.Offset(1000))
+	e, _, ok := l.Get(retention.Offset(1000))
 	as.Nil(e)
 	as.False(ok)
 }
@@ -59,9 +60,9 @@ func TestLogDiscarding(t *testing.T) {
 	}
 
 	time.Sleep(10 * time.Millisecond)
-	e, o, ok := l.Get(topic.Offset(0))
+	e, o, ok := l.Get(retention.Offset(0))
 	as.Equal(segmentSize, e)
-	as.Equal(topic.Offset(segmentSize), o)
+	as.Equal(retention.Offset(segmentSize), o)
 	as.True(ok)
 
 }
@@ -76,8 +77,8 @@ func TestLogDiscardEverything(t *testing.T) {
 	}
 
 	time.Sleep(10 * time.Millisecond)
-	e, o, ok := l.Get(topic.Offset(0))
+	e, o, ok := l.Get(retention.Offset(0))
 	as.Nil(e)
-	as.Equal(topic.Offset(segmentSize), o)
+	as.Equal(retention.Offset(segmentSize), o)
 	as.False(ok)
 }

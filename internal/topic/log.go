@@ -5,9 +5,11 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/caravan/essentials/event"
 	"github.com/caravan/essentials/internal/sync/mutex"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/config"
+	"github.com/caravan/essentials/topic/retention"
 )
 
 type (
@@ -21,7 +23,7 @@ type (
 	}
 
 	logEntry struct {
-		event     topic.Event
+		event     event.Event
 		createdAt time.Time
 	}
 
@@ -60,9 +62,9 @@ func makeLog(cfg *config.Config) *Log {
 	}
 }
 
-func (l *Log) start() topic.Offset {
+func (l *Log) start() retention.Offset {
 	res := atomic.LoadUint64(&l.startOffset)
-	return topic.Offset(res)
+	return retention.Offset(res)
 }
 
 func (l *Log) length() topic.Length {
@@ -74,7 +76,7 @@ func (l *Log) nextCapacity() uint32 {
 	return l.capIncrement
 }
 
-func (l *Log) put(ev topic.Event) {
+func (l *Log) put(ev event.Event) {
 	entry := &logEntry{
 		event:     ev,
 		createdAt: time.Now(),
@@ -105,7 +107,7 @@ func (l *Log) makeSegment() *segment {
 	}
 }
 
-func (l *Log) get(o topic.Offset) (*logEntry, topic.Offset, bool) {
+func (l *Log) get(o retention.Offset) (*logEntry, retention.Offset, bool) {
 	l.head.RLock()
 	o, pos := l.relativePos(o)
 	curr := l.head.segment
@@ -123,8 +125,8 @@ func (l *Log) get(o topic.Offset) (*logEntry, topic.Offset, bool) {
 	return emptyLogEntry, o, false
 }
 
-func (l *Log) relativePos(o topic.Offset) (topic.Offset, uint64) {
-	eo := topic.Offset(l.startOffset)
+func (l *Log) relativePos(o retention.Offset) (retention.Offset, uint64) {
+	eo := retention.Offset(l.startOffset)
 	if o < eo { // if requested is less than actual, we start at actual
 		o = eo
 	}

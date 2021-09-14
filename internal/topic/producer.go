@@ -1,33 +1,37 @@
 package topic
 
 import (
-	"errors"
 	"fmt"
 	"runtime"
-	"sync"
 
+	"github.com/caravan/essentials/closer"
+	"github.com/caravan/essentials/event"
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/debug"
 	"github.com/caravan/essentials/topic"
 )
 
 type producer struct {
-	sync.Mutex
+	closer.Closer
 	id      id.ID
 	topic   *Topic
-	channel chan topic.Event
+	channel chan event.Event
 }
 
 // Error messages
 const (
-	ErrProducerNotClosed = "producer finalized without being closed: %s"
+	ErrProducerNotClosed = "producer finalized without being channel: %s"
 )
 
 func makeProducer(t *Topic) *producer {
+	ch := startProducer(t)
 	res := &producer{
 		id:      id.New(),
 		topic:   t,
-		channel: startProducer(t),
+		channel: ch,
+		Closer: makeCloser(func() {
+			close(ch)
+		}),
 	}
 
 	if debug.IsEnabled() {
@@ -41,43 +45,12 @@ func (p *producer) ID() id.ID {
 	return p.id
 }
 
-func (p *producer) Send(e topic.Event) bool {
-	p.Lock()
-	defer p.Unlock()
-	if p.isClosed() {
-		return false
-	}
-	p.channel <- e
-	return true
-}
-
-func (p *producer) Channel() chan<- topic.Event {
+func (p *producer) Send() chan<- event.Event {
 	return p.channel
 }
 
-func (p *producer) Close() error {
-	p.Lock()
-	defer p.Unlock()
-	if p.isClosed() {
-		return errors.New(topic.ErrProducerClosed)
-	}
-	p.topic = nil
-	close(p.channel)
-	return nil
-}
-
-func (p *producer) IsClosed() bool {
-	p.Lock()
-	defer p.Unlock()
-	return p.isClosed()
-}
-
-func (p *producer) isClosed() bool {
-	return p.topic == nil
-}
-
-func startProducer(t *Topic) chan topic.Event {
-	ch := make(chan topic.Event)
+func startProducer(t *Topic) chan event.Event {
+	ch := make(chan event.Event)
 	go func() {
 		defer func() {
 			// probably because the channel was closed
@@ -92,10 +65,10 @@ func startProducer(t *Topic) chan topic.Event {
 
 func producerDebugFinalizer(wrap debug.ErrorWrapper) func(*producer) {
 	return func(p *producer) {
-		if !p.IsClosed() {
+		if !closer.IsClosed(p) {
 			debug.WithProducer(func(dp topic.Producer) {
 				err := fmt.Errorf(ErrProducerNotClosed, p.id)
-				dp.Channel() <- wrap(err)
+				dp.Send() <- wrap(err)
 			})
 		}
 	}

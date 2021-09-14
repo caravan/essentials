@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/caravan/essentials"
-	"github.com/caravan/essentials/topic"
+	"github.com/caravan/essentials/receiver"
+	"github.com/caravan/essentials/sender"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/caravan/essentials/topic/retention"
 	"github.com/stretchr/testify/assert"
@@ -26,18 +27,18 @@ func TestMakeConsumedSome(t *testing.T) {
 	c1 := top.NewConsumer()
 
 	for i := 0; i < segmentSize*4; i++ {
-		p.Send(i)
+		sender.Send(p, i)
 	}
-	as.Nil(p.Close())
+	p.Close()
 
 	for i := 0; i < segmentSize+11; i++ {
-		as.Equal(i, topic.MustReceive(c1))
+		as.Equal(i, receiver.MustReceive(c1))
 	}
 
 	time.Sleep(50 * time.Millisecond)
 	c2 := top.NewConsumer()
-	as.Equal(segmentSize, topic.MustReceive(c2))
+	as.Equal(segmentSize, receiver.MustReceive(c2))
 
-	as.Nil(c1.Close())
-	as.Nil(c2.Close())
+	c1.Close()
+	c2.Close()
 }

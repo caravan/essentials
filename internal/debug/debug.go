@@ -70,7 +70,7 @@ func WithProducer(with func(p topic.Producer)) {
 	needDebugTopic()
 	p := debugTopic.NewProducer()
 	with(p)
-	_ = p.Close()
+	p.Close()
 }
 
 // WithConsumer performs a callback, providing to it a debugging
@@ -79,7 +79,7 @@ func WithConsumer(with func(c topic.Consumer)) {
 	needDebugTopic()
 	c := debugTopic.NewConsumer()
 	with(c)
-	_ = c.Close()
+	c.Close()
 }
 
 // TailLogTo will send debug Topic errors to the specified io.Writer.
@@ -88,7 +88,7 @@ func WithConsumer(with func(c topic.Consumer)) {
 func TailLogTo(w io.Writer) {
 	go func() {
 		WithConsumer(func(c topic.Consumer) {
-			for err := range c.Channel() {
+			for err := range c.Receive() {
 				_, _ = fmt.Fprintf(w, "%s\n", err)
 			}
 		})

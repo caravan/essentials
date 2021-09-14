@@ -21,7 +21,7 @@ func TestDebugProducerClose(t *testing.T) {
 		i := top.NewProducer().ID()
 		runtime.GC()
 
-		errs := c.Channel()
+		errs := c.Receive()
 		as.Errorf((<-errs).(error), _topic.ErrProducerNotClosed, i)
 	})
 }
@@ -35,7 +35,7 @@ func TestDebugConsumerClose(t *testing.T) {
 		i := top.NewConsumer().ID()
 		runtime.GC()
 
-		errs := c.Channel()
+		errs := c.Receive()
 		as.Errorf((<-errs).(error), _topic.ErrConsumerNotClosed, i)
 	})
 }

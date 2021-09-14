@@ -28,15 +28,24 @@ type (
 	// LogStatistics provides Retention information about the Log
 	LogStatistics struct {
 		Length        topic.Length
-		CursorOffsets []topic.Offset
+		CursorOffsets []Offset
 	}
 
 	// EntriesStatistics provides Retention information about a range of
 	// Log entries
 	EntriesStatistics struct {
-		FirstOffset    topic.Offset
-		LastOffset     topic.Offset
+		FirstOffset    Offset
+		LastOffset     Offset
 		FirstTimestamp time.Time
 		LastTimestamp  time.Time
 	}
+
+	// Offset is a location within a Topic stream
+	Offset uint64
 )
+
+// Next returns the next logical Offset. Should Offsets ever become something
+// other than integers, this will spare consuming code
+func (o Offset) Next() Offset {
+	return o + 1
+}

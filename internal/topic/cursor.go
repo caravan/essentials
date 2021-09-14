@@ -3,9 +3,11 @@ package topic
 import (
 	"sync"
 
+	"github.com/caravan/essentials/closer"
+	"github.com/caravan/essentials/event"
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/sync/channel"
-	"github.com/caravan/essentials/topic"
+	"github.com/caravan/essentials/topic/retention"
 )
 
 type (
@@ -17,10 +19,11 @@ type (
 
 	// cursor is used to consume log entries
 	cursor struct {
+		closer.Closer
 		id     id.ID
 		topic  *Topic
 		ready  *channel.ReadyWait
-		offset topic.Offset
+		offset retention.Offset
 	}
 )
 
@@ -35,10 +38,15 @@ func makeCursor(t *Topic) *cursor {
 		id:    cID,
 		topic: t,
 		ready: ready,
+		Closer: makeCloser(func() {
+			ready.Close()
+			t.cursors.remove(cID)
+			t.observers.remove(cID)
+		}),
 	}
 }
 
-func (c *cursor) head() (topic.Event, bool) {
+func (c *cursor) head() (event.Event, bool) {
 	if e, o, ok := c.topic.Get(c.offset); ok {
 		c.offset = o
 		return e, true
@@ -48,18 +56,6 @@ func (c *cursor) head() (topic.Event, bool) {
 
 func (c *cursor) advance() {
 	c.offset = c.offset.Next()
-}
-
-func (c *cursor) isClosed() bool {
-	return c.topic == nil
-}
-
-func (c *cursor) close() {
-	c.ready.Close()
-	c.ready = nil
-	c.topic.cursors.remove(c.id)
-	c.topic.observers.remove(c.id)
-	c.topic = nil
 }
 
 func makeCursors() *cursors {
@@ -83,10 +79,10 @@ func (c *cursors) remove(i id.ID) {
 	delete(c.cursors, i)
 }
 
-func (c *cursors) offsets() []topic.Offset {
+func (c *cursors) offsets() []retention.Offset {
 	c.RLock()
 	defer c.RUnlock()
-	res := make([]topic.Offset, 0, len(c.cursors))
+	res := make([]retention.Offset, 0, len(c.cursors))
 	for _, cursor := range c.cursors {
 		res = append(res, cursor.offset)
 	}
