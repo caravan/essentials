@@ -64,8 +64,8 @@ func IsEnabled() bool {
 	return debugEnabled
 }
 
-// WithProducer performs a callback, providing to it a debugging
-// Producer whose lifecycle is managed by WithProducer itself
+// WithProducer performs a callback, providing to it a debugging Producer whose
+// lifecycle is managed by WithProducer itself
 func WithProducer(with func(p topic.Producer)) {
 	needDebugTopic()
 	p := debugTopic.NewProducer()

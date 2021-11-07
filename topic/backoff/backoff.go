@@ -28,9 +28,9 @@ func MakeFixedGenerator(d time.Duration) Generator {
 	}
 }
 
-// DefaultGenerator is fibonacci generator configured for retrying at
-// intervals that backoff using the fibonacci sequence up to a maximum
-// Duration of 125 milliseconds
+// DefaultGenerator is fibonacci generator configured for retrying at intervals
+// that backoff using the fibonacci sequence up to a maximum Duration of 125
+// milliseconds
 var DefaultGenerator = MakeFibonacciGenerator(defaultUnit, defaultMax)
 
 // MakeFibonacciGenerator creates a fibonacci generator for retrying at
