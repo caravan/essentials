@@ -36,8 +36,8 @@ var (
 	debugTopic   topic.Topic
 )
 
-// ProvideDebugTopicMaker hands a constructor to the debugging interface
-// that can be used to instantiate the debugTopic if needed
+// ProvideDebugTopicMaker hands a constructor to the debugging interface that
+// can be used to instantiate the debugTopic if needed
 func ProvideDebugTopicMaker(m func(o ...config.Option) topic.Topic) {
 	makeTopic = m
 }
@@ -73,8 +73,8 @@ func WithProducer(with func(p topic.Producer)) {
 	p.Close()
 }
 
-// WithConsumer performs a callback, providing to it a debugging
-// Consumer whose lifecycle is managed by WithConsumer itself
+// WithConsumer performs a callback, providing to it a debugging Consumer whose
+// lifecycle is managed by WithConsumer itself
 func WithConsumer(with func(c topic.Consumer)) {
 	needDebugTopic()
 	c := debugTopic.NewConsumer()
@@ -82,9 +82,9 @@ func WithConsumer(with func(c topic.Consumer)) {
 	c.Close()
 }
 
-// TailLogTo will send debug Topic errors to the specified io.Writer.
-// When CARAVAN_DEBUG is set, all reported errors are automatically tailed
-// to os.Stderr
+// TailLogTo will send debug Topic errors to the specified io.Writer. When
+// CARAVAN_DEBUG is set, all reported errors are automatically tailed to
+// os.Stderr
 func TailLogTo(w io.Writer) {
 	go func() {
 		WithConsumer(func(c topic.Consumer) {
@@ -95,8 +95,8 @@ func TailLogTo(w io.Writer) {
 	}()
 }
 
-// WrapStackTrace returns an ErrorWrapper that attaches Stack information
-// to an error based on the call stack when this function is invoked
+// WrapStackTrace returns an ErrorWrapper that attaches Stack information to an
+// error based on the call stack when this function is invoked
 func WrapStackTrace(msg string) ErrorWrapper {
 	stack := string(debug.Stack())
 	return func(e error) error {

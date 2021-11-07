@@ -3,8 +3,8 @@ package channel
 import "sync"
 
 // ReadyWait is a structure that manages a channel to be used for simple
-// readiness notification. The value of a structure like this over a Cond
-// is that a channel can participate in a select
+// readiness notification. The value of a structure like this over a Cond is
+// that a channel can participate in a select
 type ReadyWait struct {
 	mutex sync.Mutex
 	ready chan struct{}
@@ -19,8 +19,8 @@ func MakeReadyWait() *ReadyWait {
 	}
 }
 
-// Notify wakes up any process waiting on the ready channel without
-// blocking the calling routine
+// Notify wakes up any process waiting on the ready channel without blocking
+// the calling routine
 func (r *ReadyWait) Notify() {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
@@ -29,8 +29,8 @@ func (r *ReadyWait) Notify() {
 	}
 }
 
-// Wait returns the underlying channel and can be used to wait for the
-// Notify method having been called
+// Wait returns the underlying channel and can be used to wait for the Notify
+// method having been called
 func (r *ReadyWait) Wait() <-chan struct{} {
 	return r.ready
 }

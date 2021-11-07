@@ -66,9 +66,9 @@ func (t *Topic) NewConsumer() topic.Consumer {
 	return makeConsumer(t.makeCursor(), t.BackoffGenerator)
 }
 
-// Get consumes an event starting at the specified virtual Offset within
-// the Topic. If the Offset is no longer being retained, the next
-// available Offset will be consumed. The actual Offset read is returned
+// Get consumes an event starting at the specified virtual Offset within the
+// Topic. If the Offset is no longer being retained, the next available Offset
+// will be consumed. The actual Offset read is returned
 func (t *Topic) Get(
 	o retention.Offset,
 ) (message.Event, retention.Offset, bool) {

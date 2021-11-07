@@ -12,8 +12,8 @@ type (
 
 var _consumedPolicy = &consumedPolicy{}
 
-// MakeConsumedPolicy returns a Policy that allows for the discarding of
-// Events that have already been consumed by active Consumers
+// MakeConsumedPolicy returns a Policy that allows for the discarding of Events
+// that have already been consumed by active Consumers
 func MakeConsumedPolicy() ConsumedPolicy {
 	return _consumedPolicy
 }

@@ -21,9 +21,9 @@ func FixedBackoffSequence(ms time.Duration) Option {
 	}
 }
 
-// FibonacciBackoffSequence creates a Generator wherein every Duration
-// follows the fibonacci sequence up to the specified maximum duration.
-// Each fibonacci number is returned as many times as its value
+// FibonacciBackoffSequence creates a Generator wherein every Duration follows
+// the fibonacci sequence up to the specified maximum duration. Each fibonacci
+// number is returned as many times as its value
 func FibonacciBackoffSequence(unit, max time.Duration) Option {
 	return func(c *Config) error {
 		gen := backoff.MakeFibonacciGenerator(unit, max)

@@ -15,8 +15,8 @@ type (
 	}
 )
 
-// MakeTimedPolicy returns a Policy that only retains Events produced in
-// the last specified Duration
+// MakeTimedPolicy returns a Policy that only retains Events produced in the
+// last specified Duration
 func MakeTimedPolicy(d time.Duration) TimedPolicy {
 	return &timedPolicy{
 		duration: d,

@@ -30,8 +30,8 @@ func ApplyOptions(c *Config, options ...Option) error {
 	return nil
 }
 
-// Defaults applies default settings to a topic if they weren't explicitly
-// set through some other Option.
+// Defaults applies default settings to a topic if they weren't explicitly set
+// through some other Option
 func Defaults(c *Config) error {
 	*c = *ApplyDefaults(c)
 	return nil

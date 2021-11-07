@@ -5,8 +5,8 @@ import (
 	"sync/atomic"
 )
 
-// InitialMutex is a mutex that can eventually be bypassed. Good for
-// structures that are initially mutable, but thereafter read-only.
+// InitialMutex is a mutex that can eventually be bypassed. Good for structures
+// that are initially mutable, but thereafter read-only.
 type InitialMutex struct {
 	sync.Mutex
 	state int32

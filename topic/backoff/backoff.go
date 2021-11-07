@@ -18,8 +18,8 @@ const (
 	defaultMax  = 125 * time.Millisecond
 )
 
-// MakeFixedGenerator creates a fixed generator for retrying at intervals
-// of the specified Duration
+// MakeFixedGenerator creates a fixed generator for retrying at intervals of
+// the specified Duration
 func MakeFixedGenerator(d time.Duration) Generator {
 	return func() Next {
 		return func() time.Duration {
@@ -34,8 +34,8 @@ func MakeFixedGenerator(d time.Duration) Generator {
 var DefaultGenerator = MakeFibonacciGenerator(defaultUnit, defaultMax)
 
 // MakeFibonacciGenerator creates a fibonacci generator for retrying at
-// intervals that backoff using the fibonacci sequence up to a maximum
-// Duration specified
+// intervals that backoff using the fibonacci sequence up to a maximum Duration
+// specified
 func MakeFibonacciGenerator(unit, max time.Duration) Generator {
 	return func() Next {
 		prev := time.Duration(0)

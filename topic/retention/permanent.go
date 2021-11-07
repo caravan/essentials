@@ -12,8 +12,8 @@ type (
 
 var _permanentPolicy = &permanentPolicy{}
 
-// MakePermanentPolicy returns a Policy where all Events are retained
-// without consideration
+// MakePermanentPolicy returns a Policy where all Events are retained without
+// consideration
 func MakePermanentPolicy() PermanentPolicy {
 	return _permanentPolicy
 }

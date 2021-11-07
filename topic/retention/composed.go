@@ -83,8 +83,8 @@ func (p *unaryPolicy) Policy() Policy {
 	return p.policy
 }
 
-// And returns a Policy from which both Policies must request that Events
-// be retained in order to do so
+// And returns a Policy from which both Policies must request that Events be
+// retained in order to do so
 func And(left Policy, right Policy) AndPolicy {
 	return &andPolicy{
 		binaryPolicy: binaryPolicy{
