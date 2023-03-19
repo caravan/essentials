@@ -15,7 +15,7 @@ type (
 	}
 
 	// State allows a Policy to accumulate state between Retain calls
-	State interface{}
+	State any
 
 	// Statistics provides just enough information about the Log and a
 	// range entries to be useful to a Policy

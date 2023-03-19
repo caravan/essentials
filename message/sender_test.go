@@ -10,13 +10,13 @@ import (
 
 func TestMustSend(t *testing.T) {
 	as := assert.New(t)
-	top := essentials.NewTopic()
+	top := essentials.NewTopic[any]()
 	p := top.NewProducer()
-	message.MustSend(p, "hello")
+	message.MustSend[any](p, "hello")
 	p.Close()
 
 	defer func() {
 		as.Errorf(recover().(error), message.ErrSenderClosed)
 	}()
-	message.MustSend(p, "explode")
+	message.MustSend[any](p, "explode")
 }

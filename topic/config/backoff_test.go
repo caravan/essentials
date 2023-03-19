@@ -21,7 +21,7 @@ func TestBackoffConflict(t *testing.T) {
 		as.Errorf(rec.(error), config.ErrBackoffAlreadySet)
 	}()
 
-	essentials.NewTopic(
+	essentials.NewTopic[any](
 		config.FixedBackoffSequence(10),
 		config.FibonacciBackoffSequence(time.Microsecond, 100),
 	)
@@ -33,7 +33,7 @@ func TestBackoffGeneratorOption(t *testing.T) {
 		as.Equal(errBackoffExplosion, recover())
 	}()
 
-	essentials.NewTopic(
+	essentials.NewTopic[any](
 		config.BackoffGenerator(func() backoff.Next {
 			panic(errBackoffExplosion)
 		}),

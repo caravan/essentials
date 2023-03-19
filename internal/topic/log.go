@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/caravan/essentials/internal/sync/mutex"
-	"github.com/caravan/essentials/message"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/caravan/essentials/topic/retention"
@@ -14,70 +13,68 @@ import (
 
 type (
 	// Log manages a set of segments that contain Log entries
-	Log struct {
+	Log[Msg any] struct {
 		startOffset   uint64
 		virtualLength uint64
 		capIncrement  uint32
-		head          headSegment
-		tail          tailSegment
+		head          headSegment[Msg]
+		tail          tailSegment[Msg]
 	}
 
-	logEntry struct {
-		event     message.Event
+	logEntry[Msg any] struct {
+		event     Msg
 		createdAt time.Time
 	}
 
-	headSegment struct {
+	headSegment[Msg any] struct {
 		sync.RWMutex
-		segment *segment
+		segment *segment[Msg]
 	}
 
-	tailSegment struct {
+	tailSegment[Msg any] struct {
 		sync.Mutex
-		segment *segment
+		segment *segment[Msg]
 	}
 
-	// segment manages a set of Log entries that includes Events and the
+	// segment manages a set of Log entries that include Events and the
 	// Time at which they were emitted
-	segment struct {
+	segment[Msg any] struct {
 		mutex.InitialMutex
-		log     *Log
-		next    *segment
+		log     *Log[Msg]
+		next    *segment[Msg]
 		len     uint32
 		cap     uint32
-		entries []*logEntry
+		entries []*logEntry[Msg]
 	}
 
 	// retentionQuery is called by Log in order to determine if a segment
 	// should be retained or discarded. Such a function is provided by a
 	// Topic in order to apply a retention.Policy
-	retentionQuery func(*segment) bool
+	retentionQuery[Msg any] func(*segment[Msg]) bool
 )
 
-var emptyLogEntry = &logEntry{}
-
-func makeLog(cfg *config.Config) *Log {
-	return &Log{
+func makeLog[Msg any](cfg *config.Config) *Log[Msg] {
+	return &Log[Msg]{
 		capIncrement: uint32(cfg.SegmentIncrement),
 	}
 }
 
-func (l *Log) start() retention.Offset {
+func (l *Log[_]) start() retention.Offset {
 	res := atomic.LoadUint64(&l.startOffset)
 	return retention.Offset(res)
 }
 
-func (l *Log) length() topic.Length {
+func (l *Log[_]) length() topic.Length {
 	res := atomic.LoadUint64(&l.virtualLength)
 	return topic.Length(res)
 }
 
-func (l *Log) nextCapacity() uint32 {
+func (l *Log[_]) nextCapacity() uint32 {
 	return l.capIncrement
 }
 
-func (l *Log) put(ev message.Event) {
-	entry := &logEntry{
+func (l *Log[Msg]) put(ev Msg) {
+	entry := &logEntry[Msg]{
 		event:     ev,
 		createdAt: time.Now(),
 	}
@@ -98,16 +95,18 @@ func (l *Log) put(ev message.Event) {
 	atomic.AddUint64(&l.virtualLength, uint64(1))
 }
 
-func (l *Log) makeSegment() *segment {
+func (l *Log[Msg]) makeSegment() *segment[Msg] {
 	c := l.nextCapacity()
-	return &segment{
+	return &segment[Msg]{
 		log:     l,
 		cap:     c,
-		entries: make([]*logEntry, c),
+		entries: make([]*logEntry[Msg], c),
 	}
 }
 
-func (l *Log) get(o retention.Offset) (*logEntry, retention.Offset, bool) {
+func (l *Log[Msg]) get(
+	o retention.Offset,
+) (*logEntry[Msg], retention.Offset, bool) {
 	l.head.RLock()
 	o, pos := l.relativePos(o)
 	curr := l.head.segment
@@ -122,10 +121,10 @@ func (l *Log) get(o retention.Offset) (*logEntry, retention.Offset, bool) {
 			return curr.entries[p], o, true
 		}
 	}
-	return emptyLogEntry, o, false
+	return &logEntry[Msg]{}, o, false
 }
 
-func (l *Log) relativePos(o retention.Offset) (retention.Offset, uint64) {
+func (l *Log[_]) relativePos(o retention.Offset) (retention.Offset, uint64) {
 	eo := retention.Offset(l.startOffset)
 	if o < eo { // if requested is less than actual, we start at actual
 		o = eo
@@ -133,7 +132,7 @@ func (l *Log) relativePos(o retention.Offset) (retention.Offset, uint64) {
 	return o, uint64(o - eo)
 }
 
-func (l *Log) canVacuum() bool {
+func (l *Log[_]) canVacuum() bool {
 	l.head.RLock()
 	defer l.head.RUnlock()
 	if head := l.head.segment; head != nil {
@@ -142,7 +141,7 @@ func (l *Log) canVacuum() bool {
 	return false
 }
 
-func (l *Log) vacuum(retain retentionQuery) {
+func (l *Log[Msg]) vacuum(retain retentionQuery[Msg]) {
 	l.head.Lock()
 	defer l.head.Unlock()
 
@@ -163,13 +162,13 @@ func (l *Log) vacuum(retain retentionQuery) {
 	}
 }
 
-func (s *segment) getNext() *segment {
+func (s *segment[Msg]) getNext() *segment[Msg] {
 	s.Lock()
 	defer s.Unlock()
 	return s.next
 }
 
-func (s *segment) append(entry *logEntry) *segment {
+func (s *segment[Msg]) append(entry *logEntry[Msg]) *segment[Msg] {
 	s.Lock()
 	defer s.Unlock()
 	if s.len == s.cap {
@@ -182,19 +181,19 @@ func (s *segment) append(entry *logEntry) *segment {
 	return s
 }
 
-func (s *segment) length() uint32 {
+func (s *segment[_]) length() uint32 {
 	return atomic.LoadUint32(&s.len)
 }
 
-func (s *segment) isActive() bool {
+func (s *segment[_]) isActive() bool {
 	return !s.isFull()
 }
 
-func (s *segment) isFull() bool {
+func (s *segment[_]) isFull() bool {
 	return s.length() == s.cap
 }
 
-func (s *segment) timeRange() (time.Time, time.Time) {
+func (s *segment[_]) timeRange() (time.Time, time.Time) {
 	f := s.entries[0].createdAt
 	l := s.entries[s.len-1].createdAt
 	return f, l

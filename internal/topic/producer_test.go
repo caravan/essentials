@@ -18,12 +18,12 @@ import (
 func TestProducerClosed(t *testing.T) {
 	as := assert.New(t)
 
-	top := essentials.NewTopic()
+	top := essentials.NewTopic[any]()
 	p := top.NewProducer()
 
 	p.Close()
 	as.True(closer.IsClosed(p))
-	as.False(message.Send(p, "blah"))
+	as.False(message.Send[any](p, "blah"))
 
 	p.Close()
 	as.True(closer.IsClosed(p)) // still closed
@@ -33,14 +33,14 @@ func TestProducerGC(t *testing.T) {
 	debug.Enable()
 
 	as := assert.New(t)
-	top := essentials.NewTopic()
+	top := essentials.NewTopic[any]()
 	top.NewProducer()
 	runtime.GC()
 
 	errs := make(chan error)
 	go func() {
-		debug.WithConsumer(func(c topic.Consumer) {
-			errs <- message.MustReceive(c).(error)
+		debug.WithConsumer(func(c topic.Consumer[any]) {
+			errs <- message.MustReceive[any](c).(error)
 		})
 	}()
 	as.Error(<-errs)
@@ -49,7 +49,7 @@ func TestProducerGC(t *testing.T) {
 func TestProducer(t *testing.T) {
 	as := assert.New(t)
 
-	top := essentials.NewTopic(config.Permanent)
+	top := essentials.NewTopic[any](config.Permanent)
 	as.NotNil(top)
 
 	p := top.NewProducer()
@@ -58,9 +58,9 @@ func TestProducer(t *testing.T) {
 	as.NotNil(p)
 	as.NotEqual(id.Nil, p.ID())
 
-	message.Send(p, "first value")
-	message.Send(p, "second value")
-	message.Send(p, "third value")
+	message.Send[any](p, "first value")
+	message.Send[any](p, "second value")
+	message.Send[any](p, "third value")
 
 	time.Sleep(10 * time.Millisecond)
 	as.Equal(topic.Length(3), top.Length())
@@ -71,7 +71,7 @@ func TestProducer(t *testing.T) {
 func TestLateProducer(t *testing.T) {
 	as := assert.New(t)
 
-	top := essentials.NewTopic(config.Permanent)
+	top := essentials.NewTopic[any]()
 	p := top.NewProducer()
 
 	pc := p.Send()
@@ -98,7 +98,7 @@ func TestLateProducer(t *testing.T) {
 func TestProducerChannel(t *testing.T) {
 	as := assert.New(t)
 
-	top := essentials.NewTopic(config.Permanent)
+	top := essentials.NewTopic[any](config.Permanent)
 	as.NotNil(top)
 
 	p := top.NewProducer()
@@ -126,7 +126,7 @@ func TestProducerChannel(t *testing.T) {
 func TestProducerChannelClosed(t *testing.T) {
 	as := assert.New(t)
 
-	top := essentials.NewTopic()
+	top := essentials.NewTopic[any]()
 	p := top.NewProducer()
 	ch := p.Send()
 	p.Close()

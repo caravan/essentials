@@ -10,14 +10,14 @@ import (
 
 type (
 	// Receiver is a type that is capable of receiving a Message via a channel
-	Receiver interface {
-		Receive() <-chan Message
+	Receiver[Msg any] interface {
+		Receive() <-chan Msg
 	}
 
 	// ClosingReceiver is a Receiver that is capable of being closed
-	ClosingReceiver interface {
+	ClosingReceiver[Msg any] interface {
 		closer.Closer
-		Receiver
+		Receiver[Msg]
 	}
 )
 
@@ -28,26 +28,27 @@ const (
 )
 
 // Poll will wait up until the specified Duration for an Event to possibly be
-// returned, advancing the ClosingReceiver's Cursor upon success
-func Poll(r ClosingReceiver, d time.Duration) (Message, bool) {
+// returned, advancing the Receiver's Cursor upon success
+func Poll[Msg any](r Receiver[Msg], d time.Duration) (Msg, bool) {
 	select {
 	case <-channel.Timeout(d):
-		return nil, false
+		var zero Msg
+		return zero, false
 	case m, ok := <-r.Receive():
 		return m, ok
 	}
 }
 
 // Receive returns the next Event, blocking indefinitely, and advancing the
-// ClosingReceiver's Cursor upon completion
-func Receive(r ClosingReceiver) (Message, bool) {
+// Receiver's Cursor upon completion
+func Receive[Msg any](r Receiver[Msg]) (Msg, bool) {
 	m, ok := <-r.Receive()
 	return m, ok
 }
 
-// MustReceive will receive from a ClosingReceiver or panic if it is closed
-func MustReceive(r ClosingReceiver) Message {
-	if m, ok := Receive(r); ok {
+// MustReceive will receive from a Receiver or panic if it is closed
+func MustReceive[Msg any](r Receiver[Msg]) Msg {
+	if m, ok := Receive[Msg](r); ok {
 		return m
 	}
 	panic(errors.New(ErrReceiverClosed))

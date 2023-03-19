@@ -19,18 +19,18 @@ func TestPermanentPolicy(t *testing.T) {
 func TestPermanent(t *testing.T) {
 	as := assert.New(t)
 
-	top := essentials.NewTopic(config.Permanent)
+	top := essentials.NewTopic[any](config.Permanent)
 	p := top.NewProducer()
 
 	for i := 0; i < 500; i++ {
-		message.Send(p, i)
+		message.Send[any](p, i)
 	}
 
 	done := make(chan bool)
 	go func() {
 		c := top.NewConsumer()
 		for i := 0; i < 500; i++ {
-			as.Equal(i, message.MustReceive(c))
+			as.Equal(i, message.MustReceive[any](c))
 		}
 		c.Close()
 		done <- true

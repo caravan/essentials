@@ -8,15 +8,14 @@ import (
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/debug"
 	"github.com/caravan/essentials/internal/sync/channel"
-	"github.com/caravan/essentials/message"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/backoff"
 )
 
-type consumer struct {
-	*cursor
+type consumer[Msg any] struct {
+	*cursor[Msg]
 	id      id.ID
-	channel chan message.Event
+	channel chan Msg
 }
 
 // Error messages
@@ -24,8 +23,8 @@ const (
 	ErrConsumerNotClosed = "consumer finalized without being closed: %s"
 )
 
-func makeConsumer(c *cursor, b backoff.Generator) *consumer {
-	res := &consumer{
+func makeConsumer[Msg any](c *cursor[Msg], b backoff.Generator) *consumer[Msg] {
+	res := &consumer[Msg]{
 		cursor:  c,
 		id:      c.id,
 		channel: startConsumer(c, b),
@@ -38,16 +37,16 @@ func makeConsumer(c *cursor, b backoff.Generator) *consumer {
 	return res
 }
 
-func (c *consumer) ID() id.ID {
+func (c *consumer[_]) ID() id.ID {
 	return c.id
 }
 
-func (c *consumer) Receive() <-chan message.Event {
+func (c *consumer[Msg]) Receive() <-chan Msg {
 	return c.channel
 }
 
-func startConsumer(c *cursor, b backoff.Generator) chan message.Event {
-	ch := make(chan message.Event)
+func startConsumer[Msg any](c *cursor[Msg], b backoff.Generator) chan Msg {
+	ch := make(chan Msg)
 	next := b()
 	go func() {
 		defer func() {
@@ -88,12 +87,12 @@ func startConsumer(c *cursor, b backoff.Generator) chan message.Event {
 	return ch
 }
 
-func consumerDebugFinalizer(wrap debug.ErrorWrapper) func(c *consumer) {
-	return func(c *consumer) {
+func consumerDebugFinalizer(wrap debug.ErrorWrapper) func(c *consumer[any]) {
+	return func(c *consumer[any]) {
 		if !closer.IsClosed(c) {
-			debug.WithProducer(func(dp topic.Producer) {
+			debug.WithProducer(func(dp topic.Producer[any]) {
 				err := fmt.Errorf(ErrConsumerNotClosed, c.id)
-				dp.Send() <- wrap(err)
+				dp.Send() <- (any)(wrap(err))
 			})
 		}
 	}

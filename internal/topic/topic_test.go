@@ -17,13 +17,13 @@ func TestMakeTopicError(t *testing.T) {
 	defer func() {
 		as.Error(recover().(error))
 	}()
-	_topic.Make(config.Permanent, config.Consumed)
+	_topic.Make[any](config.Permanent, config.Consumed)
 }
 
 func TestLongLog(t *testing.T) {
 	as := assert.New(t)
 
-	l := _topic.Make(config.Permanent)
+	l := _topic.Make[any](config.Permanent)
 	for i := 0; i < 10000; i++ {
 		l.Put(i)
 	}
@@ -40,7 +40,7 @@ func TestLongLog(t *testing.T) {
 func TestUnknownOffset(t *testing.T) {
 	as := assert.New(t)
 
-	l := _topic.Make(config.Permanent)
+	l := _topic.Make[any](config.Permanent)
 	for i := 0; i < 100; i++ {
 		l.Put(i)
 	}
@@ -54,7 +54,7 @@ func TestLogDiscarding(t *testing.T) {
 	as := assert.New(t)
 
 	segmentSize := config.DefaultSegmentIncrement
-	l := _topic.Make(config.Consumed)
+	l := _topic.Make[any](config.Consumed)
 	for i := 0; i < segmentSize+3; i++ {
 		l.Put(i)
 	}
@@ -71,7 +71,7 @@ func TestLogDiscardEverything(t *testing.T) {
 	as := assert.New(t)
 
 	segmentSize := config.DefaultSegmentIncrement
-	l := _topic.Make(config.Consumed)
+	l := _topic.Make[any](config.Consumed)
 	for i := 0; i < segmentSize; i++ {
 		l.Put(i)
 	}

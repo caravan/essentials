@@ -23,7 +23,7 @@ func (id ID) Bytes() []byte {
 }
 
 // Equal allows ID to be compared for equality
-func (id ID) Equal(other interface{}) bool {
+func (id ID) Equal(other any) bool {
 	oid, ok := other.(ID)
 	return ok && id == oid
 }

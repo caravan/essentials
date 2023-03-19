@@ -16,8 +16,8 @@ func TestDebugProducerClose(t *testing.T) {
 	as := assert.New(t)
 	debug.Enable()
 
-	debug.WithConsumer(func(c topic.Consumer) {
-		top := essentials.NewTopic()
+	debug.WithConsumer(func(c topic.Consumer[any]) {
+		top := essentials.NewTopic[any]()
 		i := top.NewProducer().ID()
 		runtime.GC()
 
@@ -30,8 +30,8 @@ func TestDebugConsumerClose(t *testing.T) {
 	as := assert.New(t)
 	debug.Enable()
 
-	debug.WithConsumer(func(c topic.Consumer) {
-		top := essentials.NewTopic()
+	debug.WithConsumer(func(c topic.Consumer[any]) {
+		top := essentials.NewTopic[any]()
 		i := top.NewConsumer().ID()
 		runtime.GC()
 

@@ -6,7 +6,6 @@ import (
 
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/sync/channel"
-	"github.com/caravan/essentials/message"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/backoff"
 	"github.com/caravan/essentials/topic/config"
@@ -15,11 +14,11 @@ import (
 
 type (
 	// Topic is the internal implementation of a Topic
-	Topic struct {
+	Topic[Msg any] struct {
 		*config.Config
 		retentionState retention.State
-		log            *Log
-		cursors        *cursors
+		log            *Log[Msg]
+		cursors        *cursors[Msg]
 		observers      *topicObservers
 		vacuumReady    *channel.ReadyWait
 	}
@@ -32,19 +31,19 @@ type (
 )
 
 // Make instantiates a new internal Topic instance
-func Make(o ...config.Option) *Topic {
+func Make[Msg any](o ...config.Option) *Topic[Msg] {
 	cfg := &config.Config{}
 	withDefaults := append(o, config.Defaults)
 	if err := config.ApplyOptions(cfg, withDefaults...); err != nil {
 		panic(err)
 	}
 
-	res := &Topic{
+	res := &Topic[Msg]{
 		Config:         cfg,
 		retentionState: cfg.RetentionPolicy.InitialState(),
-		cursors:        makeCursors(),
+		cursors:        makeCursors[Msg](),
 		observers:      makeLogObservers(),
-		log:            makeLog(cfg),
+		log:            makeLog[Msg](cfg),
 	}
 
 	res.startVacuuming()
@@ -52,42 +51,40 @@ func Make(o ...config.Option) *Topic {
 }
 
 // Length returns the virtual size of the Topic
-func (t *Topic) Length() topic.Length {
+func (t *Topic[_]) Length() topic.Length {
 	return t.log.length()
 }
 
 // NewProducer instantiates a new Topic Producer
-func (t *Topic) NewProducer() topic.Producer {
+func (t *Topic[Msg]) NewProducer() topic.Producer[Msg] {
 	return makeProducer(t)
 }
 
 // NewConsumer instantiates a new Topic Consumer
-func (t *Topic) NewConsumer() topic.Consumer {
+func (t *Topic[Msg]) NewConsumer() topic.Consumer[Msg] {
 	return makeConsumer(t.makeCursor(), t.BackoffGenerator)
 }
 
 // Get consumes an event starting at the specified virtual Offset within the
 // Topic. If the Offset is no longer being retained, the next available Offset
 // will be consumed. The actual Offset read is returned
-func (t *Topic) Get(
-	o retention.Offset,
-) (message.Event, retention.Offset, bool) {
+func (t *Topic[Msg]) Get(o retention.Offset) (Msg, retention.Offset, bool) {
 	defer t.vacuumReady.Notify()
 	e, o, ok := t.log.get(o)
 	return e.event, o, ok
 }
 
-// Put adds the specified event to the Topic
-func (t *Topic) Put(e message.Event) {
-	t.log.put(e)
+// Put adds the specified Message to the Topic
+func (t *Topic[Msg]) Put(m Msg) {
+	t.log.put(m)
 	t.notifyObservers()
 }
 
-func (t *Topic) isClosed() bool {
+func (t *Topic[_]) isClosed() bool {
 	return false
 }
 
-func (t *Topic) startVacuuming() {
+func (t *Topic[_]) startVacuuming() {
 	vacuumID := id.New()
 	ready := channel.MakeReadyWait()
 	t.vacuumReady = ready
@@ -109,9 +106,9 @@ func (t *Topic) startVacuuming() {
 	}()
 }
 
-func (t *Topic) vacuum() {
+func (t *Topic[Msg]) vacuum() {
 	baseStats := t.baseRetentionStatistics()
-	t.log.vacuum(func(e *segment) bool {
+	t.log.vacuum(func(e *segment[Msg]) bool {
 		start := t.log.start()
 		firstTimestamp, lastTimestamp := e.timeRange()
 		stats := *baseStats()
@@ -127,7 +124,7 @@ func (t *Topic) vacuum() {
 	})
 }
 
-func (t *Topic) baseRetentionStatistics() func() *retention.Statistics {
+func (t *Topic[_]) baseRetentionStatistics() func() *retention.Statistics {
 	var base *retention.Statistics
 	return func() *retention.Statistics {
 		if base == nil {
@@ -143,14 +140,14 @@ func (t *Topic) baseRetentionStatistics() func() *retention.Statistics {
 	}
 }
 
-func (t *Topic) makeCursor() *cursor {
+func (t *Topic[Msg]) makeCursor() *cursor[Msg] {
 	c := makeCursor(t)
 	t.cursors.track(c)
 	t.observers.add(c.id, c.ready.Notify)
 	return c
 }
 
-func (t *Topic) notifyObservers() {
+func (t *Topic[_]) notifyObservers() {
 	t.observers.notify()
 }
 

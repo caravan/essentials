@@ -9,10 +9,10 @@ import (
 )
 
 // NewTopic instantiates a new Topic, given the specified Options
-func NewTopic(o ...config.Option) topic.Topic {
-	return _topic.Make(o...)
+func NewTopic[Msg any](o ...config.Option) topic.Topic[Msg] {
+	return _topic.Make[Msg](o...)
 }
 
 func init() {
-	debug.ProvideDebugTopicMaker(NewTopic)
+	debug.ProvideDebugTopicMaker(NewTopic[any])
 }

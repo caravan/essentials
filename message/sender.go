@@ -8,14 +8,14 @@ import (
 
 type (
 	// Sender is a type that is capable of sending a Message via a channel
-	Sender interface {
-		Send() chan<- Message
+	Sender[Msg any] interface {
+		Send() chan<- Msg
 	}
 
 	// ClosingSender is a Sender that is capable of being closed
-	ClosingSender interface {
+	ClosingSender[Msg any] interface {
 		closer.Closer
-		Sender
+		Sender[Msg]
 	}
 )
 
@@ -26,7 +26,7 @@ const (
 )
 
 // Send sends an Event to a ClosingSender
-func Send(s ClosingSender, m Message) (sent bool) {
+func Send[Msg any](s ClosingSender[Msg], m Msg) bool {
 	select {
 	case <-s.IsClosed():
 		return false
@@ -37,7 +37,7 @@ func Send(s ClosingSender, m Message) (sent bool) {
 }
 
 // MustSend will send to a ClosingSender or panic if it is closed
-func MustSend(s ClosingSender, m Message) {
+func MustSend[Msg any](s ClosingSender[Msg], m Msg) {
 	if !Send(s, m) {
 		panic(errors.New(ErrSenderClosed))
 	}

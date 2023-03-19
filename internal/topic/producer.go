@@ -7,15 +7,14 @@ import (
 	"github.com/caravan/essentials/closer"
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/debug"
-	"github.com/caravan/essentials/message"
 	"github.com/caravan/essentials/topic"
 )
 
-type producer struct {
+type producer[Msg any] struct {
 	closer.Closer
 	id      id.ID
-	topic   *Topic
-	channel chan message.Event
+	topic   *Topic[Msg]
+	channel chan Msg
 }
 
 // Error messages
@@ -23,9 +22,9 @@ const (
 	ErrProducerNotClosed = "producer finalized without being closed: %s"
 )
 
-func makeProducer(t *Topic) *producer {
+func makeProducer[Msg any](t *Topic[Msg]) *producer[Msg] {
 	ch := startProducer(t)
-	res := &producer{
+	res := &producer[Msg]{
 		id:      id.New(),
 		topic:   t,
 		channel: ch,
@@ -41,16 +40,16 @@ func makeProducer(t *Topic) *producer {
 	return res
 }
 
-func (p *producer) ID() id.ID {
+func (p *producer[_]) ID() id.ID {
 	return p.id
 }
 
-func (p *producer) Send() chan<- message.Event {
+func (p *producer[Msg]) Send() chan<- Msg {
 	return p.channel
 }
 
-func startProducer(t *Topic) chan message.Event {
-	ch := make(chan message.Event)
+func startProducer[Msg any](t *Topic[Msg]) chan Msg {
+	ch := make(chan Msg)
 	go func() {
 		defer func() {
 			// probably because the channel was closed
@@ -63,12 +62,12 @@ func startProducer(t *Topic) chan message.Event {
 	return ch
 }
 
-func producerDebugFinalizer(wrap debug.ErrorWrapper) func(*producer) {
-	return func(p *producer) {
+func producerDebugFinalizer(wrap debug.ErrorWrapper) func(*producer[any]) {
+	return func(p *producer[any]) {
 		if !closer.IsClosed(p) {
-			debug.WithProducer(func(dp topic.Producer) {
+			debug.WithProducer(func(dp topic.Producer[any]) {
 				err := fmt.Errorf(ErrProducerNotClosed, p.id)
-				dp.Send() <- wrap(err)
+				dp.Send() <- (any)(wrap(err))
 			})
 		}
 	}

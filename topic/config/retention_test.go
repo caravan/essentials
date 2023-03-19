@@ -22,7 +22,7 @@ func TestRetentionConflict(t *testing.T) {
 		as.Errorf(rec.(error), config.ErrRetentionPolicyAlreadySet)
 	}()
 
-	essentials.NewTopic(config.Timed(5), config.Counted(10))
+	essentials.NewTopic[any](config.Timed(5), config.Counted(10))
 }
 
 func TestRetentionPolicyOption(t *testing.T) {
@@ -31,7 +31,7 @@ func TestRetentionPolicyOption(t *testing.T) {
 		as.Equal(errRetentionExplosion, recover())
 	}()
 
-	essentials.NewTopic(
+	essentials.NewTopic[any](
 		config.RetentionPolicy(explodingRetentionPolicy(false)),
 	)
 }

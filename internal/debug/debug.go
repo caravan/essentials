@@ -13,9 +13,13 @@ import (
 	"github.com/caravan/essentials/topic/config"
 )
 
-// ErrorWrapper is a function that wraps an error. It is returned by
-// WrapStackTrace to attach stack information to a standard error
-type ErrorWrapper func(error) error
+type (
+	// ErrorWrapper is a function that wraps an error. It is returned by
+	// WrapStackTrace to attach stack information to a standard error
+	ErrorWrapper func(error) error
+
+	makeTopicFunc func(o ...config.Option) topic.Topic[any]
+)
 
 // Environment variables
 const (
@@ -29,25 +33,26 @@ const (
 
 var (
 	trueMatcher = regexp.MustCompile("^\\s*(TRUE|YES|OK|1)\\s*$")
-	makeTopic   func(o ...config.Option) topic.Topic
+	makeTopic   makeTopicFunc
 
 	debugSync    sync.Mutex
 	debugEnabled bool
-	debugTopic   topic.Topic
+	debugTopic   topic.Topic[any]
 )
 
 // ProvideDebugTopicMaker hands a constructor to the debugging interface that
 // can be used to instantiate the debugTopic if needed
-func ProvideDebugTopicMaker(m func(o ...config.Option) topic.Topic) {
+func ProvideDebugTopicMaker(m makeTopicFunc) {
 	makeTopic = m
 }
 
-func needDebugTopic() {
+func getDebugTopic() topic.Topic[any] {
 	debugSync.Lock()
 	defer debugSync.Unlock()
 	if debugTopic == nil {
 		debugTopic = makeTopic(config.Consumed)
 	}
+	return debugTopic
 }
 
 // Enable all debugging
@@ -66,18 +71,16 @@ func IsEnabled() bool {
 
 // WithProducer performs a callback, providing to it a debugging Producer whose
 // lifecycle is managed by WithProducer itself
-func WithProducer(with func(p topic.Producer)) {
-	needDebugTopic()
-	p := debugTopic.NewProducer()
+func WithProducer(with func(p topic.Producer[any])) {
+	p := getDebugTopic().NewProducer()
 	with(p)
 	p.Close()
 }
 
 // WithConsumer performs a callback, providing to it a debugging Consumer whose
 // lifecycle is managed by WithConsumer itself
-func WithConsumer(with func(c topic.Consumer)) {
-	needDebugTopic()
-	c := debugTopic.NewConsumer()
+func WithConsumer(with func(c topic.Consumer[any])) {
+	c := getDebugTopic().NewConsumer()
 	with(c)
 	c.Close()
 }
@@ -87,7 +90,7 @@ func WithConsumer(with func(c topic.Consumer)) {
 // os.Stderr
 func TailLogTo(w io.Writer) {
 	go func() {
-		WithConsumer(func(c topic.Consumer) {
+		WithConsumer(func(c topic.Consumer[any]) {
 			for err := range c.Receive() {
 				_, _ = fmt.Fprintf(w, "%s\n", err)
 			}

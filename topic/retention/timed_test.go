@@ -20,22 +20,22 @@ func TestTimedPolicy(t *testing.T) {
 
 func TestTimed(t *testing.T) {
 	as := assert.New(t)
-	top := essentials.NewTopic(config.Timed(50 * time.Millisecond))
+	top := essentials.NewTopic[any](config.Timed(50 * time.Millisecond))
 	segmentSize := config.DefaultSegmentIncrement
 	p := top.NewProducer()
 	c := top.NewConsumer()
 
 	for i := 0; i < segmentSize; i++ {
-		message.Send(p, i)
+		message.Send[any](p, i)
 	}
 
 	time.Sleep(100 * time.Millisecond)
 
 	for i := segmentSize; i < segmentSize*2; i++ {
-		message.Send(p, i)
+		message.Send[any](p, i)
 	}
 
-	as.Equal(segmentSize, message.MustReceive(c))
+	as.Equal(segmentSize, message.MustReceive[any](c))
 	p.Close()
 	c.Close()
 }

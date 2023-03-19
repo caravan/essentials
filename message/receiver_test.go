@@ -11,16 +11,16 @@ import (
 
 func TestPoll(t *testing.T) {
 	as := assert.New(t)
-	top := essentials.NewTopic()
+	top := essentials.NewTopic[any]()
 	p := top.NewProducer()
-	message.Send(p, "hello")
+	message.Send[any](p, "hello")
 
 	c := top.NewConsumer()
-	e, ok := message.Poll(c, time.Millisecond)
+	e, ok := message.Poll[any](c, time.Millisecond)
 	as.Equal("hello", e)
 	as.True(ok)
 
-	e, ok = message.Poll(c, time.Millisecond)
+	e, ok = message.Poll[any](c, time.Millisecond)
 	as.Nil(e)
 	as.False(ok)
 	c.Close()
@@ -28,16 +28,16 @@ func TestPoll(t *testing.T) {
 
 func TestMustReceive(t *testing.T) {
 	as := assert.New(t)
-	top := essentials.NewTopic()
+	top := essentials.NewTopic[any]()
 	p := top.NewProducer()
-	message.Send(p, "hello")
+	message.Send[any](p, "hello")
 
 	c := top.NewConsumer()
-	as.Equal("hello", message.MustReceive(c))
+	as.Equal("hello", message.MustReceive[any](c))
 	c.Close()
 
 	defer func() {
 		as.Errorf(recover().(error), message.ErrReceiverClosed)
 	}()
-	message.MustReceive(c)
+	message.MustReceive[any](c)
 }

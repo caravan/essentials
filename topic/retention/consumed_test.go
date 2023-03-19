@@ -19,24 +19,24 @@ func TestConsumedPolicy(t *testing.T) {
 
 func TestMakeConsumedSome(t *testing.T) {
 	as := assert.New(t)
-	top := essentials.NewTopic(config.Consumed)
+	top := essentials.NewTopic[any](config.Consumed)
 
 	segmentSize := config.DefaultSegmentIncrement
 	p := top.NewProducer()
 	c1 := top.NewConsumer()
 
 	for i := 0; i < segmentSize*4; i++ {
-		message.Send(p, i)
+		message.Send[any](p, i)
 	}
 	p.Close()
 
 	for i := 0; i < segmentSize+11; i++ {
-		as.Equal(i, message.MustReceive(c1))
+		as.Equal(i, message.MustReceive[any](c1))
 	}
 
 	time.Sleep(50 * time.Millisecond)
 	c2 := top.NewConsumer()
-	as.Equal(segmentSize, message.MustReceive(c2))
+	as.Equal(segmentSize, message.MustReceive[any](c2))
 
 	c1.Close()
 	c2.Close()
