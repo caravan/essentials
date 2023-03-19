@@ -32,7 +32,7 @@ const (
 )
 
 var (
-	trueMatcher = regexp.MustCompile("^\\s*(TRUE|YES|OK|1)\\s*$")
+	trueMatcher = regexp.MustCompile(`^\s*(TRUE|YES|OK|1)\s*$`)
 	makeTopic   makeTopicFunc
 
 	debugSync    sync.Mutex

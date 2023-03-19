@@ -50,11 +50,11 @@ func TestInitialMutexNoDeadlock(t *testing.T) {
 	// Nothing beyond here should block or panic
 	m.Lock()
 	m.Lock()
-	m.Unlock()
+	m.Unlock() //lint:ignore SA2001 intentional
 	m.Unlock()
 	m.DisableLock()
 	m.Lock()
-	m.Unlock()
+	m.Unlock() //lint:ignore SA2001 intentional
 }
 
 func TestInitialMutexDisableRace(t *testing.T) {
@@ -68,7 +68,7 @@ func TestInitialMutexDisableRace(t *testing.T) {
 		as.True(m.IsLockDisabled())
 		m.Lock() // now it should be disabled
 		m.Lock()
-		m.Unlock()
+		m.Unlock() //lint:ignore SA2001 intentional
 		done <- true
 	}()
 	time.Sleep(500 * time.Millisecond)
