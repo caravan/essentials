@@ -10,7 +10,6 @@ import (
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/debug"
 	"github.com/caravan/essentials/message"
-	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/stretchr/testify/assert"
 )
@@ -38,9 +37,9 @@ func TestConsumerGC(t *testing.T) {
 
 	errs := make(chan error)
 	go func() {
-		debug.WithConsumer(func(c topic.Consumer[any]) {
-			e, _ := message.Receive[any](c)
-			errs <- e.(error)
+		debug.WithConsumer(func(c debug.Consumer) {
+			e, _ := message.Receive[error](c)
+			errs <- e
 		})
 	}()
 	as.Error(<-errs)
@@ -65,17 +64,18 @@ func TestSingleConsumer(t *testing.T) {
 	p := top.NewProducer()
 	as.NotNil(p)
 
-	message.Send[any](p, "first value")
-	message.Send[any](p, "second value")
-	message.Send[any](p, "third value")
+	msg := message.Of[any]()
+	msg.Send(p, "first value")
+	msg.Send(p, "second value")
+	msg.Send(p, "third value")
 
 	c := top.NewConsumer()
 	as.NotNil(c)
 	as.NotEqual(id.Nil, c.ID())
 
-	as.Equal("first value", message.MustReceive[any](c))
-	as.Equal("second value", message.MustReceive[any](c))
-	as.Equal("third value", message.MustReceive[any](c))
+	as.Equal("first value", msg.MustReceive(c))
+	as.Equal("second value", msg.MustReceive(c))
+	as.Equal("third value", msg.MustReceive(c))
 
 	p.Close()
 	c.Close()
@@ -90,19 +90,20 @@ func TestMultiConsumer(t *testing.T) {
 	p := top.NewProducer()
 	as.NotNil(p)
 
-	message.Send[any](p, "first value")
-	message.Send[any](p, "second value")
-	message.Send[any](p, "third value")
+	msg := message.Of[any]()
+	msg.Send(p, "first value")
+	msg.Send(p, "second value")
+	msg.Send(p, "third value")
 
 	c1 := top.NewConsumer()
 	c2 := top.NewConsumer()
 
-	as.Equal("first value", message.MustReceive[any](c1))
-	as.Equal("second value", message.MustReceive[any](c1))
-	as.Equal("first value", message.MustReceive[any](c2))
-	as.Equal("second value", message.MustReceive[any](c2))
-	as.Equal("third value", message.MustReceive[any](c2))
-	as.Equal("third value", message.MustReceive[any](c1))
+	as.Equal("first value", msg.MustReceive(c1))
+	as.Equal("second value", msg.MustReceive(c1))
+	as.Equal("first value", msg.MustReceive(c2))
+	as.Equal("second value", msg.MustReceive(c2))
+	as.Equal("third value", msg.MustReceive(c2))
+	as.Equal("third value", msg.MustReceive(c1))
 
 	p.Close()
 	c1.Close()
@@ -114,8 +115,10 @@ func TestLoadedConsumer(t *testing.T) {
 
 	top := essentials.NewTopic[any](config.Permanent)
 	p := top.NewProducer()
+	msg := message.Of[any]()
+
 	for i := 0; i < 10000; i++ {
-		message.Send[any](p, i)
+		msg.Send(p, i)
 	}
 
 	done := make(chan bool)
@@ -123,7 +126,7 @@ func TestLoadedConsumer(t *testing.T) {
 	go func() {
 		c := top.NewConsumer()
 		for i := 0; i < 10000; i++ {
-			as.Equal(i, message.MustReceive[any](c))
+			as.Equal(i, msg.MustReceive(c))
 		}
 		c.Close()
 		done <- true
@@ -139,10 +142,11 @@ func TestStreamingConsumer(t *testing.T) {
 	top := essentials.NewTopic[any](config.Consumed)
 	p := top.NewProducer()
 	c := top.NewConsumer()
+	msg := message.Of[any]()
 
 	go func() {
 		for i := 0; i < 100000; i++ {
-			message.Send[any](p, i)
+			msg.Send(p, i)
 		}
 		p.Close()
 	}()
@@ -151,7 +155,7 @@ func TestStreamingConsumer(t *testing.T) {
 
 	go func() {
 		for i := 0; i < 100000; i++ {
-			as.Equal(i, message.MustReceive[any](c))
+			as.Equal(i, msg.MustReceive(c))
 		}
 		done <- true
 	}()
@@ -166,14 +170,15 @@ func TestConsumerClosedDuringPoll(t *testing.T) {
 	top := essentials.NewTopic[any]()
 	p := top.NewProducer()
 	c := top.NewConsumer()
+	msg := message.Of[any]()
 
 	go func() {
 		time.Sleep(100 * time.Millisecond)
 		c.Close()
-		message.Send[any](p, 1) // Consumer should not receive
+		msg.Send(p, 1) // Consumer should not receive
 	}()
 
-	e, ok := message.Poll[any](c, time.Second)
+	e, ok := msg.Poll(c, time.Second)
 	as.Nil(e)
 	as.False(ok)
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/debug"
 	"github.com/caravan/essentials/internal/sync/channel"
-	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/backoff"
 )
 
@@ -32,7 +31,7 @@ func makeConsumer[Msg any](c *cursor[Msg], b backoff.Generator) *consumer[Msg] {
 
 	if debug.IsEnabled() {
 		wrap := debug.WrapStackTrace(debug.MsgInstantiationTrace)
-		runtime.SetFinalizer(res, consumerDebugFinalizer(wrap))
+		runtime.SetFinalizer(res, consumerDebugFinalizer[Msg](wrap))
 	}
 	return res
 }
@@ -87,12 +86,14 @@ func startConsumer[Msg any](c *cursor[Msg], b backoff.Generator) chan Msg {
 	return ch
 }
 
-func consumerDebugFinalizer(wrap debug.ErrorWrapper) func(c *consumer[any]) {
-	return func(c *consumer[any]) {
+func consumerDebugFinalizer[Msg any](
+	wrap debug.ErrorWrapper,
+) func(c *consumer[Msg]) {
+	return func(c *consumer[Msg]) {
 		if !closer.IsClosed(c) {
-			debug.WithProducer(func(dp topic.Producer[any]) {
+			debug.WithProducer(func(dp debug.Producer) {
 				err := fmt.Errorf(ErrConsumerNotClosed, c.id)
-				dp.Send() <- (any)(wrap(err))
+				dp.Send() <- wrap(err)
 			})
 		}
 	}

@@ -24,18 +24,19 @@ func TestTimed(t *testing.T) {
 	segmentSize := config.DefaultSegmentIncrement
 	p := top.NewProducer()
 	c := top.NewConsumer()
+	msg := message.Of[any]()
 
 	for i := 0; i < segmentSize; i++ {
-		message.Send[any](p, i)
+		msg.Send(p, i)
 	}
 
 	time.Sleep(100 * time.Millisecond)
 
 	for i := segmentSize; i < segmentSize*2; i++ {
-		message.Send[any](p, i)
+		msg.Send(p, i)
 	}
 
-	as.Equal(segmentSize, message.MustReceive[any](c))
+	as.Equal(segmentSize, msg.MustReceive(c))
 	p.Close()
 	c.Close()
 }

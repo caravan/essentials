@@ -2,7 +2,6 @@ package message
 
 import (
 	"errors"
-
 	"github.com/caravan/essentials/closer"
 )
 

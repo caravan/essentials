@@ -39,8 +39,8 @@ func TestProducerGC(t *testing.T) {
 
 	errs := make(chan error)
 	go func() {
-		debug.WithConsumer(func(c topic.Consumer[any]) {
-			errs <- message.MustReceive[any](c).(error)
+		debug.WithConsumer(func(c debug.Consumer) {
+			errs <- message.MustReceive[error](c)
 		})
 	}()
 	as.Error(<-errs)
@@ -54,13 +54,14 @@ func TestProducer(t *testing.T) {
 
 	p := top.NewProducer()
 	c := top.NewConsumer()
+	msg := message.Of[any]()
 
 	as.NotNil(p)
 	as.NotEqual(id.Nil, p.ID())
 
-	message.Send[any](p, "first value")
-	message.Send[any](p, "second value")
-	message.Send[any](p, "third value")
+	msg.Send(p, "first value")
+	msg.Send(p, "second value")
+	msg.Send(p, "third value")
 
 	time.Sleep(10 * time.Millisecond)
 	as.Equal(topic.Length(3), top.Length())

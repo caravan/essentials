@@ -18,7 +18,11 @@ type (
 	// WrapStackTrace to attach stack information to a standard error
 	ErrorWrapper func(error) error
 
-	makeTopicFunc func(o ...config.Option) topic.Topic[any]
+	Topic    topic.Topic[error]
+	Producer topic.Producer[error]
+	Consumer topic.Consumer[error]
+
+	makeTopicFunc func(o ...config.Option) topic.Topic[error]
 )
 
 // Environment variables
@@ -37,7 +41,7 @@ var (
 
 	debugSync    sync.Mutex
 	debugEnabled bool
-	debugTopic   topic.Topic[any]
+	debugTopic   Topic
 )
 
 // ProvideDebugTopicMaker hands a constructor to the debugging interface that
@@ -46,7 +50,7 @@ func ProvideDebugTopicMaker(m makeTopicFunc) {
 	makeTopic = m
 }
 
-func getDebugTopic() topic.Topic[any] {
+func getDebugTopic() Topic {
 	debugSync.Lock()
 	defer debugSync.Unlock()
 	if debugTopic == nil {
@@ -71,7 +75,7 @@ func IsEnabled() bool {
 
 // WithProducer performs a callback, providing to it a debugging Producer whose
 // lifecycle is managed by WithProducer itself
-func WithProducer(with func(p topic.Producer[any])) {
+func WithProducer(with func(p Producer)) {
 	p := getDebugTopic().NewProducer()
 	with(p)
 	p.Close()
@@ -79,7 +83,7 @@ func WithProducer(with func(p topic.Producer[any])) {
 
 // WithConsumer performs a callback, providing to it a debugging Consumer whose
 // lifecycle is managed by WithConsumer itself
-func WithConsumer(with func(c topic.Consumer[any])) {
+func WithConsumer(with func(c Consumer)) {
 	c := getDebugTopic().NewConsumer()
 	with(c)
 	c.Close()
@@ -90,7 +94,7 @@ func WithConsumer(with func(c topic.Consumer[any])) {
 // os.Stderr
 func TailLogTo(w io.Writer) {
 	go func() {
-		WithConsumer(func(c topic.Consumer[any]) {
+		WithConsumer(func(c Consumer) {
 			for err := range c.Receive() {
 				_, _ = fmt.Fprintf(w, "%s\n", err)
 			}

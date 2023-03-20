@@ -24,19 +24,20 @@ func TestMakeConsumedSome(t *testing.T) {
 	segmentSize := config.DefaultSegmentIncrement
 	p := top.NewProducer()
 	c1 := top.NewConsumer()
+	msg := message.Of[any]()
 
 	for i := 0; i < segmentSize*4; i++ {
-		message.Send[any](p, i)
+		msg.Send(p, i)
 	}
 	p.Close()
 
 	for i := 0; i < segmentSize+11; i++ {
-		as.Equal(i, message.MustReceive[any](c1))
+		as.Equal(i, msg.MustReceive(c1))
 	}
 
 	time.Sleep(50 * time.Millisecond)
 	c2 := top.NewConsumer()
-	as.Equal(segmentSize, message.MustReceive[any](c2))
+	as.Equal(segmentSize, msg.MustReceive(c2))
 
 	c1.Close()
 	c2.Close()

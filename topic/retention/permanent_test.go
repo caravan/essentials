@@ -21,16 +21,17 @@ func TestPermanent(t *testing.T) {
 
 	top := essentials.NewTopic[any](config.Permanent)
 	p := top.NewProducer()
+	msg := message.Of[any]()
 
 	for i := 0; i < 500; i++ {
-		message.Send[any](p, i)
+		msg.Send(p, i)
 	}
 
 	done := make(chan bool)
 	go func() {
 		c := top.NewConsumer()
 		for i := 0; i < 500; i++ {
-			as.Equal(i, message.MustReceive[any](c))
+			as.Equal(i, msg.MustReceive(c))
 		}
 		c.Close()
 		done <- true

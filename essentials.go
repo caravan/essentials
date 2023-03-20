@@ -14,5 +14,5 @@ func NewTopic[Msg any](o ...config.Option) topic.Topic[Msg] {
 }
 
 func init() {
-	debug.ProvideDebugTopicMaker(NewTopic[any])
+	debug.ProvideDebugTopicMaker(NewTopic[error])
 }
