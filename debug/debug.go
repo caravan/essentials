@@ -2,6 +2,11 @@ package debug
 
 import "github.com/caravan/essentials/internal/debug"
 
+type (
+	Consumer = debug.Consumer
+	Producer = debug.Producer
+)
+
 var (
 	// Enable enables debugging information to be emitted
 	Enable = debug.Enable
