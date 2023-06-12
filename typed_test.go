@@ -1,4 +1,4 @@
-package message_test
+package essentials_test
 
 import (
 	"testing"
@@ -13,7 +13,7 @@ func TestTypedPoll(t *testing.T) {
 	as := assert.New(t)
 	top := essentials.NewTopic[any]()
 	p := top.NewProducer()
-	msg := message.Of[any]()
+	msg := essentials.Of[any]()
 	msg.Send(p, "hello")
 
 	c := top.NewConsumer()
@@ -31,7 +31,7 @@ func TestTypedReceive(t *testing.T) {
 	as := assert.New(t)
 	top := essentials.NewTopic[any]()
 	p := top.NewProducer()
-	msg := message.Of[any]()
+	msg := essentials.Of[any]()
 	msg.Send(p, "hello")
 
 	c := top.NewConsumer()
@@ -44,7 +44,7 @@ func TestTypedMustReceive(t *testing.T) {
 	as := assert.New(t)
 	top := essentials.NewTopic[any]()
 	p := top.NewProducer()
-	msg := message.Of[any]()
+	msg := essentials.Of[any]()
 	msg.Send(p, "hello")
 
 	c := top.NewConsumer()
@@ -61,7 +61,7 @@ func TestTypedMustSend(t *testing.T) {
 	as := assert.New(t)
 	top := essentials.NewTopic[any]()
 	p := top.NewProducer()
-	msg := message.Of[any]()
+	msg := essentials.Of[any]()
 
 	msg.MustSend(p, "hello")
 	p.Close()

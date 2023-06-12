@@ -64,7 +64,7 @@ func TestSingleConsumer(t *testing.T) {
 	p := top.NewProducer()
 	as.NotNil(p)
 
-	msg := message.Of[any]()
+	msg := essentials.Of[any]()
 	msg.Send(p, "first value")
 	msg.Send(p, "second value")
 	msg.Send(p, "third value")
@@ -90,7 +90,7 @@ func TestMultiConsumer(t *testing.T) {
 	p := top.NewProducer()
 	as.NotNil(p)
 
-	msg := message.Of[any]()
+	msg := essentials.Of[any]()
 	msg.Send(p, "first value")
 	msg.Send(p, "second value")
 	msg.Send(p, "third value")
@@ -115,7 +115,7 @@ func TestLoadedConsumer(t *testing.T) {
 
 	top := essentials.NewTopic[any](config.Permanent)
 	p := top.NewProducer()
-	msg := message.Of[any]()
+	msg := essentials.Of[any]()
 
 	for i := 0; i < 10000; i++ {
 		msg.Send(p, i)
@@ -142,7 +142,7 @@ func TestStreamingConsumer(t *testing.T) {
 	top := essentials.NewTopic[any](config.Consumed)
 	p := top.NewProducer()
 	c := top.NewConsumer()
-	msg := message.Of[any]()
+	msg := essentials.Of[any]()
 
 	go func() {
 		for i := 0; i < 100000; i++ {
@@ -170,7 +170,7 @@ func TestConsumerClosedDuringPoll(t *testing.T) {
 	top := essentials.NewTopic[any]()
 	p := top.NewProducer()
 	c := top.NewConsumer()
-	msg := message.Of[any]()
+	msg := essentials.Of[any]()
 
 	go func() {
 		time.Sleep(100 * time.Millisecond)

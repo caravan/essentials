@@ -54,7 +54,7 @@ func TestProducer(t *testing.T) {
 
 	p := top.NewProducer()
 	c := top.NewConsumer()
-	msg := message.Of[any]()
+	msg := essentials.Of[any]()
 
 	as.NotNil(p)
 	as.NotEqual(id.Nil, p.ID())

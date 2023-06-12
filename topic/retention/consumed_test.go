@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/caravan/essentials"
-	"github.com/caravan/essentials/message"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/caravan/essentials/topic/retention"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +23,7 @@ func TestMakeConsumedSome(t *testing.T) {
 	segmentSize := config.DefaultSegmentIncrement
 	p := top.NewProducer()
 	c1 := top.NewConsumer()
-	msg := message.Of[any]()
+	msg := essentials.Of[any]()
 
 	for i := 0; i < segmentSize*4; i++ {
 		msg.Send(p, i)

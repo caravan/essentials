@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/caravan/essentials"
-	"github.com/caravan/essentials/message"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/caravan/essentials/topic/retention"
 	"github.com/stretchr/testify/assert"
@@ -21,7 +20,7 @@ func TestPermanent(t *testing.T) {
 
 	top := essentials.NewTopic[any](config.Permanent)
 	p := top.NewProducer()
-	msg := message.Of[any]()
+	msg := essentials.Of[any]()
 
 	for i := 0; i < 500; i++ {
 		msg.Send(p, i)
