@@ -3,10 +3,11 @@ package essentials
 import (
 	"time"
 
-	_topic "github.com/caravan/essentials/internal/topic"
 	"github.com/caravan/essentials/message"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/config"
+
+	_topic "github.com/caravan/essentials/internal/topic"
 )
 
 type (
