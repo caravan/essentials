@@ -28,15 +28,15 @@ type (
 		ID() id.ID
 	}
 
-	// Producer exposes a way to push Events to its associated Topic.
-	// Events pushed to the Topic are capable of being independently
+	// Producer exposes a way to push messages to its associated Topic.
+	// messages pushed to the Topic are capable of being independently
 	// received by all Consumers
 	Producer[Msg any] interface {
 		message.ClosingSender[Msg]
 		Identified
 	}
 
-	// Consumer exposes a way to receive Events from its associated Topic.
+	// Consumer exposes a way to receive messages from its associated Topic.
 	// Each Consumer created independently tracks its own position within
 	// the Topic
 	Consumer[Msg any] interface {

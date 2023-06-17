@@ -1,7 +1,7 @@
 package retention
 
 type (
-	// ConsumedPolicy describes a Policy that discards Events that have
+	// ConsumedPolicy describes a Policy that discards messages that have
 	// been consumed by all active Consumers
 	ConsumedPolicy interface {
 		Policy
@@ -12,7 +12,7 @@ type (
 
 var _consumedPolicy = &consumedPolicy{}
 
-// MakeConsumedPolicy returns a Policy that allows for the discarding of Events
+// MakeConsumedPolicy returns a Policy that allows for the discarding of messages
 // that have already been consumed by active Consumers
 func MakeConsumedPolicy() ConsumedPolicy {
 	return _consumedPolicy

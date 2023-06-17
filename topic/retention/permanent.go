@@ -1,7 +1,7 @@
 package retention
 
 type (
-	// PermanentPolicy describes a Policy where all Events are retained
+	// PermanentPolicy describes a Policy where all messages are retained
 	// without consideration.
 	PermanentPolicy interface {
 		Policy
@@ -12,7 +12,7 @@ type (
 
 var _permanentPolicy = &permanentPolicy{}
 
-// MakePermanentPolicy returns a Policy where all Events are retained without
+// MakePermanentPolicy returns a Policy where all messages are retained without
 // consideration
 func MakePermanentPolicy() PermanentPolicy {
 	return _permanentPolicy

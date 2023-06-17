@@ -23,13 +23,13 @@ type (
 	}
 
 	// AndPolicy is a Policy from which both Policies must request that
-	// Events be retained in order to do so
+	// messages be retained in order to do so
 	AndPolicy interface {
 		BinaryPolicy
 	}
 
 	// OrPolicy is a Policy from which either Policy can request that
-	// Events be retained in order to do so
+	// messages be retained in order to do so
 	OrPolicy interface {
 		BinaryPolicy
 	}
@@ -83,7 +83,7 @@ func (p *unaryPolicy) Policy() Policy {
 	return p.policy
 }
 
-// And returns a Policy from which both Policies must request that Events be
+// And returns a Policy from which both Policies must request that messages be
 // retained in order to do so
 func And(left Policy, right Policy) AndPolicy {
 	return &andPolicy{
@@ -99,7 +99,7 @@ func (p *andPolicy) Retain(s State, r *Statistics) (State, bool) {
 	return state, lok && rok
 }
 
-// Or returns a Policy from which either Policy can request that Events be
+// Or returns a Policy from which either Policy can request that messages be
 // retained in order to do so
 func Or(left Policy, right Policy) OrPolicy {
 	return &orPolicy{

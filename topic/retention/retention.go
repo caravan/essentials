@@ -8,7 +8,7 @@ import (
 
 type (
 	// Policy describes and implements a policy that a Topic will use to
-	// discard Events
+	// discard messages
 	Policy interface {
 		InitialState() State
 		Retain(State, *Statistics) (State, bool)

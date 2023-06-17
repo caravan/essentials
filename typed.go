@@ -12,14 +12,14 @@ import (
 
 type (
 	Typed[Msg any] interface {
-		NewTopic(o ...config.Option) topic.Topic[Msg]
+		NewTopic(...config.Option) topic.Topic[Msg]
 
-		Poll(r message.Receiver[Msg], d time.Duration) (Msg, bool)
-		Receive(r message.Receiver[Msg]) (Msg, bool)
-		MustReceive(r message.Receiver[Msg]) Msg
+		Poll(message.Receiver[Msg], time.Duration) (Msg, bool)
+		Receive(message.Receiver[Msg]) (Msg, bool)
+		MustReceive(message.Receiver[Msg]) Msg
 
-		Send(s message.ClosingSender[Msg], m Msg) bool
-		MustSend(s message.ClosingSender[Msg], m Msg)
+		Send(message.ClosingSender[Msg], Msg) bool
+		MustSend(message.ClosingSender[Msg], Msg)
 	}
 
 	typed[Msg any] struct{}

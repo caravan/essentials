@@ -22,7 +22,7 @@ type (
 	}
 
 	logEntry[Msg any] struct {
-		event     Msg
+		msg       Msg
 		createdAt time.Time
 	}
 
@@ -36,7 +36,7 @@ type (
 		segment *segment[Msg]
 	}
 
-	// segment manages a set of Log entries that include Events and the
+	// segment manages a set of Log entries that include messages and the
 	// Time at which they were emitted
 	segment[Msg any] struct {
 		mutex.InitialMutex
@@ -73,9 +73,9 @@ func (l *Log[_]) nextCapacity() uint32 {
 	return l.capIncrement
 }
 
-func (l *Log[Msg]) put(ev Msg) {
+func (l *Log[Msg]) put(msg Msg) {
 	entry := &logEntry[Msg]{
-		event:     ev,
+		msg:       msg,
 		createdAt: time.Now(),
 	}
 

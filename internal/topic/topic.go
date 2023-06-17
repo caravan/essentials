@@ -65,18 +65,18 @@ func (t *Topic[Msg]) NewConsumer() topic.Consumer[Msg] {
 	return makeConsumer(t.makeCursor(), t.BackoffGenerator)
 }
 
-// Get consumes an event starting at the specified virtual Offset within the
+// Get consumes an message starting at the specified virtual Offset within the
 // Topic. If the Offset is no longer being retained, the next available Offset
 // will be consumed. The actual Offset read is returned
 func (t *Topic[Msg]) Get(o retention.Offset) (Msg, retention.Offset, bool) {
 	defer t.vacuumReady.Notify()
 	e, o, ok := t.log.get(o)
-	return e.event, o, ok
+	return e.msg, o, ok
 }
 
 // Put adds the specified Message to the Topic
-func (t *Topic[Msg]) Put(m Msg) {
-	t.log.put(m)
+func (t *Topic[Msg]) Put(msg Msg) {
+	t.log.put(msg)
 	t.notifyObservers()
 }
 

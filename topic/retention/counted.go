@@ -4,7 +4,7 @@ import "github.com/caravan/essentials/topic"
 
 type (
 	// CountedPolicy describes a Policy that only retains the most recent
-	// specified Count of events
+	// specified Count of messages
 	CountedPolicy interface {
 		Policy
 		Count() topic.Length
@@ -16,7 +16,7 @@ type (
 )
 
 // MakeCountedPolicy returns a Policy that only retains the most recent
-// specified count of events
+// specified count of messages
 func MakeCountedPolicy(c topic.Length) CountedPolicy {
 	return &countedPolicy{
 		count: c,

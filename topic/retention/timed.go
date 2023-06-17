@@ -3,8 +3,8 @@ package retention
 import "time"
 
 type (
-	// TimedPolicy describes a Policy that only retains Events retains
-	// Events produced in the last specified Duration
+	// TimedPolicy describes a Policy that only retains messages retains
+	// messages produced in the last specified Duration
 	TimedPolicy interface {
 		Policy
 		Duration() time.Duration
@@ -15,7 +15,7 @@ type (
 	}
 )
 
-// MakeTimedPolicy returns a Policy that only retains Events produced in the
+// MakeTimedPolicy returns a Policy that only retains messages produced in the
 // last specified Duration
 func MakeTimedPolicy(d time.Duration) TimedPolicy {
 	return &timedPolicy{
