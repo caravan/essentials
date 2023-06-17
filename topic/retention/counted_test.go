@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/caravan/essentials"
-	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/caravan/essentials/topic/retention"
 	"github.com/stretchr/testify/assert"
@@ -15,7 +14,7 @@ func TestCountedPolicy(t *testing.T) {
 	as := assert.New(t)
 	p := retention.MakeCountedPolicy(100)
 	as.NotNil(p)
-	as.Equal(topic.Length(100), p.Count())
+	as.Equal(retention.Count(100), p.Count())
 }
 
 func TestCounted(t *testing.T) {

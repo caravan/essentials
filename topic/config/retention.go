@@ -4,7 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/retention"
 )
 
@@ -20,7 +19,7 @@ func Consumed(c *Config) error {
 }
 
 // Counted applies a counted Policy to the Topic
-func Counted(c topic.Length) Option {
+func Counted(c retention.Count) Option {
 	return func(t *Config) error {
 		policy := retention.MakeCountedPolicy(c)
 		return maybeSetRetentionPolicy(t, policy)
