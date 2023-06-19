@@ -27,7 +27,7 @@ const (
 	ErrReceiverClosed = "receiver is closed"
 )
 
-// Poll will wait up until the specified Duration for an message to possibly be
+// Poll will wait up until the specified Duration for a message to possibly be
 // returned, advancing the Receiver's Cursor upon success
 func Poll[Msg any](r Receiver[Msg], d time.Duration) (Msg, bool) {
 	select {

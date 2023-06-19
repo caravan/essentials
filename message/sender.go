@@ -25,7 +25,7 @@ const (
 	ErrSenderClosed = "sender is closed"
 )
 
-// Send sends an message to a ClosingSender
+// Send sends a message to a ClosingSender
 func Send[Msg any](s ClosingSender[Msg], m Msg) bool {
 	select {
 	case <-s.IsClosed():
