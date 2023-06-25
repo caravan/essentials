@@ -34,21 +34,21 @@ func (typed[Msg]) NewTopic(o ...config.Option) topic.Topic[Msg] {
 }
 
 func (typed[Msg]) Poll(r message.Receiver[Msg], d time.Duration) (Msg, bool) {
-	return message.Poll[Msg](r, d)
+	return message.Poll(r, d)
 }
 
 func (typed[Msg]) Receive(r message.Receiver[Msg]) (Msg, bool) {
-	return message.Receive[Msg](r)
+	return message.Receive(r)
 }
 
 func (t typed[Msg]) MustReceive(r message.Receiver[Msg]) Msg {
-	return message.MustReceive[Msg](r)
+	return message.MustReceive(r)
 }
 
 func (typed[Msg]) Send(s message.ClosingSender[Msg], m Msg) bool {
-	return message.Send[Msg](s, m)
+	return message.Send(s, m)
 }
 
 func (t typed[Msg]) MustSend(s message.ClosingSender[Msg], m Msg) {
-	message.MustSend[Msg](s, m)
+	message.MustSend(s, m)
 }

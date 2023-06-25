@@ -48,7 +48,7 @@ func Receive[Msg any](r Receiver[Msg]) (Msg, bool) {
 
 // MustReceive will receive from a Receiver or panic if it is closed
 func MustReceive[Msg any](r Receiver[Msg]) Msg {
-	if m, ok := Receive[Msg](r); ok {
+	if m, ok := Receive(r); ok {
 		return m
 	}
 	panic(errors.New(ErrReceiverClosed))
