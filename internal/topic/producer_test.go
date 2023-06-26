@@ -54,14 +54,13 @@ func TestProducer(t *testing.T) {
 
 	p := top.NewProducer()
 	c := top.NewConsumer()
-	msg := essentials.Of[any]()
 
 	as.NotNil(p)
 	as.NotEqual(id.Nil, p.ID())
 
-	msg.Send(p, "first value")
-	msg.Send(p, "second value")
-	msg.Send(p, "third value")
+	p.Send() <- "first value"
+	p.Send() <- "second value"
+	p.Send() <- "third value"
 
 	time.Sleep(10 * time.Millisecond)
 	as.Equal(topic.Length(3), top.Length())

@@ -64,18 +64,17 @@ func TestSingleConsumer(t *testing.T) {
 	p := top.NewProducer()
 	as.NotNil(p)
 
-	msg := essentials.Of[any]()
-	msg.Send(p, "first value")
-	msg.Send(p, "second value")
-	msg.Send(p, "third value")
+	p.Send() <- "first value"
+	p.Send() <- "second value"
+	p.Send() <- "third value"
 
 	c := top.NewConsumer()
 	as.NotNil(c)
 	as.NotEqual(id.Nil, c.ID())
 
-	as.Equal("first value", msg.MustReceive(c))
-	as.Equal("second value", msg.MustReceive(c))
-	as.Equal("third value", msg.MustReceive(c))
+	as.Equal("first value", <-c.Receive())
+	as.Equal("second value", <-c.Receive())
+	as.Equal("third value", <-c.Receive())
 
 	p.Close()
 	c.Close()
@@ -90,20 +89,19 @@ func TestMultiConsumer(t *testing.T) {
 	p := top.NewProducer()
 	as.NotNil(p)
 
-	msg := essentials.Of[any]()
-	msg.Send(p, "first value")
-	msg.Send(p, "second value")
-	msg.Send(p, "third value")
+	p.Send() <- "first value"
+	p.Send() <- "second value"
+	p.Send() <- "third value"
 
 	c1 := top.NewConsumer()
 	c2 := top.NewConsumer()
 
-	as.Equal("first value", msg.MustReceive(c1))
-	as.Equal("second value", msg.MustReceive(c1))
-	as.Equal("first value", msg.MustReceive(c2))
-	as.Equal("second value", msg.MustReceive(c2))
-	as.Equal("third value", msg.MustReceive(c2))
-	as.Equal("third value", msg.MustReceive(c1))
+	as.Equal("first value", <-c1.Receive())
+	as.Equal("second value", <-c1.Receive())
+	as.Equal("first value", <-c2.Receive())
+	as.Equal("second value", <-c2.Receive())
+	as.Equal("third value", <-c2.Receive())
+	as.Equal("third value", <-c1.Receive())
 
 	p.Close()
 	c1.Close()
@@ -115,10 +113,9 @@ func TestLoadedConsumer(t *testing.T) {
 
 	top := essentials.NewTopic[any](config.Permanent)
 	p := top.NewProducer()
-	msg := essentials.Of[any]()
 
 	for i := 0; i < 10000; i++ {
-		msg.Send(p, i)
+		p.Send() <- i
 	}
 
 	done := make(chan bool)
@@ -126,7 +123,7 @@ func TestLoadedConsumer(t *testing.T) {
 	go func() {
 		c := top.NewConsumer()
 		for i := 0; i < 10000; i++ {
-			as.Equal(i, msg.MustReceive(c))
+			as.Equal(i, message.MustReceive[any](c))
 		}
 		c.Close()
 		done <- true
@@ -142,11 +139,10 @@ func TestStreamingConsumer(t *testing.T) {
 	top := essentials.NewTopic[any](config.Consumed)
 	p := top.NewProducer()
 	c := top.NewConsumer()
-	msg := essentials.Of[any]()
 
 	go func() {
 		for i := 0; i < 100000; i++ {
-			msg.Send(p, i)
+			p.Send() <- i
 		}
 		p.Close()
 	}()
@@ -155,7 +151,7 @@ func TestStreamingConsumer(t *testing.T) {
 
 	go func() {
 		for i := 0; i < 100000; i++ {
-			as.Equal(i, msg.MustReceive(c))
+			as.Equal(i, message.MustReceive[any](c))
 		}
 		done <- true
 	}()
@@ -170,15 +166,14 @@ func TestConsumerClosedDuringPoll(t *testing.T) {
 	top := essentials.NewTopic[any]()
 	p := top.NewProducer()
 	c := top.NewConsumer()
-	msg := essentials.Of[any]()
 
 	go func() {
 		time.Sleep(100 * time.Millisecond)
 		c.Close()
-		msg.Send(p, 1) // Consumer should not receive
+		p.Send() <- 1
 	}()
 
-	e, ok := msg.Poll(c, time.Second)
+	e, ok := message.Poll[any](c, time.Second)
 	as.Nil(e)
 	as.False(ok)
 }

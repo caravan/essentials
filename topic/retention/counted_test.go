@@ -20,16 +20,15 @@ func TestCountedPolicy(t *testing.T) {
 func TestCounted(t *testing.T) {
 	as := assert.New(t)
 	top := essentials.NewTopic[any](config.Counted(100))
-	msg := essentials.Of[any]()
 
 	p := top.NewProducer()
 	for i := 0; i < 256; i++ {
-		msg.Send(p, i)
+		p.Send() <- i
 	}
 
 	time.Sleep(100 * time.Millisecond)
 	c := top.NewConsumer()
-	as.Equal(128, msg.MustReceive(c))
+	as.Equal(128, <-c.Receive())
 
 	p.Close()
 	c.Close()
