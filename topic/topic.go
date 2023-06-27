@@ -44,3 +44,9 @@ type (
 		Identified
 	}
 )
+
+// Error messages
+const (
+	ErrConsumerNotClosed = "consumer finalized without being closed: %s"
+	ErrProducerNotClosed = "producer finalized without being closed: %s"
+)

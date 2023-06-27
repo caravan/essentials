@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/caravan/essentials/id"
+	"github.com/caravan/essentials/internal/debug"
 	"github.com/caravan/essentials/internal/sync/channel"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/backoff"
@@ -31,7 +32,7 @@ type (
 )
 
 // Make instantiates a new internal Topic instance
-func Make[Msg any](o ...config.Option) *Topic[Msg] {
+func Make[Msg any](o ...config.Option) topic.Topic[Msg] {
 	cfg := &config.Config{}
 	withDefaults := append(o, config.Defaults)
 	if err := config.ApplyOptions(cfg, withDefaults...); err != nil {
@@ -175,4 +176,8 @@ func (o *topicObservers) notify() {
 	for _, cb := range o.callbacks {
 		cb()
 	}
+}
+
+func init() {
+	debug.ProvideDebugTopicMaker(Make[error])
 }

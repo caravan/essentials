@@ -8,6 +8,7 @@ import (
 	"github.com/caravan/essentials/id"
 	"github.com/caravan/essentials/internal/debug"
 	"github.com/caravan/essentials/internal/sync/channel"
+	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/backoff"
 )
 
@@ -16,11 +17,6 @@ type consumer[Msg any] struct {
 	id      id.ID
 	channel chan Msg
 }
-
-// Error messages
-const (
-	ErrConsumerNotClosed = "consumer finalized without being closed: %s"
-)
 
 func makeConsumer[Msg any](c *cursor[Msg], b backoff.Generator) *consumer[Msg] {
 	res := &consumer[Msg]{
@@ -92,7 +88,7 @@ func consumerDebugFinalizer[Msg any](
 	return func(c *consumer[Msg]) {
 		if !closer.IsClosed(c) {
 			debug.WithProducer(func(dp debug.Producer) {
-				err := fmt.Errorf(ErrConsumerNotClosed, c.id)
+				err := fmt.Errorf(topic.ErrConsumerNotClosed, c.id)
 				dp.Send() <- wrap(err)
 			})
 		}

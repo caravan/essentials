@@ -9,7 +9,7 @@ import (
 	"github.com/caravan/essentials/topic/retention"
 	"github.com/stretchr/testify/assert"
 
-	_topic "github.com/caravan/essentials/internal/topic"
+	internal "github.com/caravan/essentials/internal/topic"
 )
 
 func TestMakeTopicError(t *testing.T) {
@@ -17,13 +17,13 @@ func TestMakeTopicError(t *testing.T) {
 	defer func() {
 		as.Error(recover().(error))
 	}()
-	_topic.Make[any](config.Permanent, config.Consumed)
+	internal.Make[any](config.Permanent, config.Consumed)
 }
 
 func TestLongLog(t *testing.T) {
 	as := assert.New(t)
 
-	l := _topic.Make[any](config.Permanent)
+	l := internal.Make[any](config.Permanent).(*internal.Topic[any])
 	for i := 0; i < 10000; i++ {
 		l.Put(i)
 	}
@@ -40,7 +40,7 @@ func TestLongLog(t *testing.T) {
 func TestUnknownOffset(t *testing.T) {
 	as := assert.New(t)
 
-	l := _topic.Make[any](config.Permanent)
+	l := internal.Make[any](config.Permanent).(*internal.Topic[any])
 	for i := 0; i < 100; i++ {
 		l.Put(i)
 	}
@@ -54,7 +54,7 @@ func TestLogDiscarding(t *testing.T) {
 	as := assert.New(t)
 
 	segmentSize := config.DefaultSegmentIncrement
-	l := _topic.Make[any](config.Consumed)
+	l := internal.Make[any](config.Consumed).(*internal.Topic[any])
 	for i := 0; i < segmentSize+3; i++ {
 		l.Put(i)
 	}
@@ -71,7 +71,7 @@ func TestLogDiscardEverything(t *testing.T) {
 	as := assert.New(t)
 
 	segmentSize := config.DefaultSegmentIncrement
-	l := _topic.Make[any](config.Consumed)
+	l := internal.Make[any](config.Consumed).(*internal.Topic[any])
 	for i := 0; i < segmentSize; i++ {
 		l.Put(i)
 	}
