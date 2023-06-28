@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/caravan/essentials/id"
-	"github.com/caravan/essentials/internal/debug"
 	"github.com/caravan/essentials/internal/sync/channel"
 	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/backoff"
@@ -176,8 +175,4 @@ func (o *topicObservers) notify() {
 	for _, cb := range o.callbacks {
 		cb()
 	}
-}
-
-func init() {
-	debug.ProvideDebugTopicMaker(Make[error])
 }

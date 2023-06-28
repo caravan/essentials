@@ -6,7 +6,6 @@ import (
 
 	"github.com/caravan/essentials/closer"
 	"github.com/caravan/essentials/id"
-	"github.com/caravan/essentials/internal/debug"
 	"github.com/caravan/essentials/topic"
 )
 
@@ -28,8 +27,8 @@ func makeProducer[Msg any](t *Topic[Msg]) *producer[Msg] {
 		}),
 	}
 
-	if debug.IsEnabled() {
-		wrap := debug.WrapStackTrace(debug.MsgInstantiationTrace)
+	if Debug.IsEnabled() {
+		wrap := WrapStackTrace(MsgInstantiationTrace)
 		runtime.SetFinalizer(res, producerDebugFinalizer[Msg](wrap))
 	}
 	return res
@@ -58,11 +57,11 @@ func startProducer[Msg any](t *Topic[Msg]) chan Msg {
 }
 
 func producerDebugFinalizer[Msg any](
-	wrap debug.ErrorWrapper,
+	wrap ErrorWrapper,
 ) func(*producer[Msg]) {
 	return func(p *producer[Msg]) {
 		if !closer.IsClosed(p) {
-			debug.WithProducer(func(dp debug.Producer) {
+			Debug.WithProducer(func(dp topic.Producer[error]) {
 				err := fmt.Errorf(topic.ErrProducerNotClosed, p.id)
 				dp.Send() <- wrap(err)
 			})

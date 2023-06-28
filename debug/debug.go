@@ -1,26 +1,21 @@
 package debug
 
-import "github.com/caravan/essentials/internal/debug"
-
-type (
-	Consumer = debug.Consumer
-	Producer = debug.Producer
-)
+import internal "github.com/caravan/essentials/internal/topic"
 
 var (
 	// Enable enables debugging information to be emitted
-	Enable = debug.Enable
+	Enable = internal.Debug.Enable
 
 	// IsEnabled returns whether debugging information is enabled
-	IsEnabled = debug.IsEnabled
+	IsEnabled = internal.Debug.IsEnabled
 
 	// WithConsumer provides a debugging Consumer to the provided callback
 	// function. That Consumer is managed by the call to WithConsumer, so
 	// it need not be closed explicitly by the caller
-	WithConsumer = debug.WithConsumer
+	WithConsumer = internal.Debug.WithConsumer
 
 	// TailLogTo begins to stream any new debugging information to the
 	// specified io.Writer. Debugging information must be enabled for this
-	// call produce any output
-	TailLogTo = debug.TailLogTo
+	// call to produce any output
+	TailLogTo = internal.Debug.TailLogTo
 )

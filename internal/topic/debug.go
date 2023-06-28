@@ -1,4 +1,4 @@
-package debug
+package topic
 
 import (
 	"fmt"
@@ -18,11 +18,11 @@ type (
 	// WrapStackTrace to attach stack information to a standard error
 	ErrorWrapper func(error) error
 
-	Topic    topic.Topic[error]
-	Producer topic.Producer[error]
-	Consumer topic.Consumer[error]
-
-	makeTopicFunc func(o ...config.Option) topic.Topic[error]
+	debugger struct {
+		sync.Mutex
+		enabled bool
+		topic   topic.Topic[error]
+	}
 )
 
 // Environment variables
@@ -37,54 +37,45 @@ const (
 
 var (
 	trueMatcher = regexp.MustCompile(`^\s*(TRUE|YES|OK|1)\s*$`)
-	makeTopic   makeTopicFunc
 
-	debugSync    sync.Mutex
-	debugEnabled bool
-	debugTopic   Topic
+	Debug = &debugger{}
 )
 
-// ProvideDebugTopicMaker hands a constructor to the debugging interface that
-// can be used to instantiate the debugTopic if needed
-func ProvideDebugTopicMaker(m makeTopicFunc) {
-	makeTopic = m
-}
-
-func getDebugTopic() Topic {
-	debugSync.Lock()
-	defer debugSync.Unlock()
-	if debugTopic == nil {
-		debugTopic = makeTopic(config.Consumed)
+func (d *debugger) getDebugTopic() topic.Topic[error] {
+	d.Lock()
+	defer d.Unlock()
+	if d.topic == nil {
+		d.topic = Make[error](config.Consumed)
 	}
-	return debugTopic
+	return d.topic
 }
 
 // Enable all debugging
-func Enable() {
-	debugSync.Lock()
-	defer debugSync.Unlock()
-	debugEnabled = true
+func (d *debugger) Enable() {
+	d.Lock()
+	defer d.Unlock()
+	d.enabled = true
 }
 
 // IsEnabled returns whether debugging is enabled
-func IsEnabled() bool {
-	debugSync.Lock()
-	defer debugSync.Unlock()
-	return debugEnabled
+func (d *debugger) IsEnabled() bool {
+	d.Lock()
+	defer d.Unlock()
+	return d.enabled
 }
 
 // WithProducer performs a callback, providing to it a debugging Producer whose
 // lifecycle is managed by WithProducer itself
-func WithProducer(with func(p Producer)) {
-	p := getDebugTopic().NewProducer()
+func (d *debugger) WithProducer(with func(p topic.Producer[error])) {
+	p := d.getDebugTopic().NewProducer()
 	with(p)
 	p.Close()
 }
 
 // WithConsumer performs a callback, providing to it a debugging Consumer whose
 // lifecycle is managed by WithConsumer itself
-func WithConsumer(with func(c Consumer)) {
-	c := getDebugTopic().NewConsumer()
+func (d *debugger) WithConsumer(with func(c topic.Consumer[error])) {
+	c := d.getDebugTopic().NewConsumer()
 	with(c)
 	c.Close()
 }
@@ -92,9 +83,9 @@ func WithConsumer(with func(c Consumer)) {
 // TailLogTo will send debug Topic errors to the specified io.Writer. When
 // CARAVAN_DEBUG is set, all reported errors are automatically tailed to
 // os.Stderr
-func TailLogTo(w io.Writer) {
+func (d *debugger) TailLogTo(w io.Writer) {
 	go func() {
-		WithConsumer(func(c Consumer) {
+		d.WithConsumer(func(c topic.Consumer[error]) {
 			for err := range c.Receive() {
 				_, _ = fmt.Fprintf(w, "%s\n", err)
 			}
@@ -114,8 +105,8 @@ func WrapStackTrace(msg string) ErrorWrapper {
 func init() {
 	if s, ok := os.LookupEnv(CaravanDebug); ok {
 		if trueMatcher.MatchString(strings.ToUpper(s)) {
-			Enable()
-			TailLogTo(os.Stderr)
+			Debug.Enable()
+			Debug.TailLogTo(os.Stderr)
 		}
 	}
 }

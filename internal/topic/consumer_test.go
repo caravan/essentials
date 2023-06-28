@@ -7,8 +7,8 @@ import (
 
 	"github.com/caravan/essentials/closer"
 	"github.com/caravan/essentials/id"
-	"github.com/caravan/essentials/internal/debug"
 	"github.com/caravan/essentials/message"
+	"github.com/caravan/essentials/topic"
 	"github.com/caravan/essentials/topic/config"
 	"github.com/stretchr/testify/assert"
 
@@ -29,7 +29,7 @@ func TestConsumerClosed(t *testing.T) {
 }
 
 func TestConsumerGC(t *testing.T) {
-	debug.Enable()
+	internal.Debug.Enable()
 
 	as := assert.New(t)
 	top := internal.Make[any]()
@@ -38,7 +38,7 @@ func TestConsumerGC(t *testing.T) {
 
 	errs := make(chan error)
 	go func() {
-		debug.WithConsumer(func(c debug.Consumer) {
+		internal.Debug.WithConsumer(func(c topic.Consumer[error]) {
 			e, _ := message.Receive[error](c)
 			errs <- e
 		})

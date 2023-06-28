@@ -4,7 +4,6 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/caravan/essentials/internal/debug"
 	"github.com/caravan/essentials/topic"
 	"github.com/stretchr/testify/assert"
 
@@ -13,9 +12,9 @@ import (
 
 func TestDebugProducerClose(t *testing.T) {
 	as := assert.New(t)
-	debug.Enable()
+	internal.Debug.Enable()
 
-	debug.WithConsumer(func(c debug.Consumer) {
+	internal.Debug.WithConsumer(func(c topic.Consumer[error]) {
 		top := internal.Make[any]()
 		i := top.NewProducer().ID()
 		runtime.GC()
@@ -27,9 +26,9 @@ func TestDebugProducerClose(t *testing.T) {
 
 func TestDebugConsumerClose(t *testing.T) {
 	as := assert.New(t)
-	debug.Enable()
+	internal.Debug.Enable()
 
-	debug.WithConsumer(func(c debug.Consumer) {
+	internal.Debug.WithConsumer(func(c topic.Consumer[error]) {
 		top := internal.Make[any]()
 		i := top.NewConsumer().ID()
 		runtime.GC()
