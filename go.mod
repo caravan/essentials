@@ -6,7 +6,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/tools v0.12.0
-	honnef.co/go/tools v0.4.3
+	honnef.co/go/tools v0.4.5
 )
 
 require (
